@@ -26,7 +26,7 @@ extension TotalTokenBalanceProvider: TokenBalanceProvider {
         mapToAvailableTokenBalance(walletState: walletModel.state, stakingState: walletModel.stakingManagerState)
     }
 
-    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType> {
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         Publishers.CombineLatest(
             walletModel.statePublisher,
             walletModel.stakingManagerStatePublisher

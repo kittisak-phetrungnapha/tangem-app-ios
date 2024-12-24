@@ -26,7 +26,7 @@ extension AvailableBalanceProvider: TokenBalanceProvider {
         mapToAvailableTokenBalance(state: walletModel.state)
     }
 
-    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType> {
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         walletModel.statePublisher
             .map { self.mapToAvailableTokenBalance(state: $0) }
             .eraseToAnyPublisher()

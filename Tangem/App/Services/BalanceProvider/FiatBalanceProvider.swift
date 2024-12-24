@@ -31,7 +31,7 @@ extension FiatBalanceProvider: TokenBalanceProvider {
         mapToTokenBalance(balanceType: cryptoBalanceProvider.balanceType)
     }
 
-    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType> {
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         Publishers.CombineLatest(
             // Listen if rate was loaded after main balance
             walletModel.ratePublisher.removeDuplicates(),

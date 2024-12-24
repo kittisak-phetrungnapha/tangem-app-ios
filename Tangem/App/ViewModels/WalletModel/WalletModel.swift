@@ -46,7 +46,7 @@ class WalletModel {
         _rate.value
     }
 
-    var ratePublisher: AnyValuePublisher<LoadingResult<Decimal?, Never>> {
+    var ratePublisher: AnyPublisher<LoadingResult<Decimal?, Never>, Never> {
         _rate.eraseToAnyPublisher()
     }
 
