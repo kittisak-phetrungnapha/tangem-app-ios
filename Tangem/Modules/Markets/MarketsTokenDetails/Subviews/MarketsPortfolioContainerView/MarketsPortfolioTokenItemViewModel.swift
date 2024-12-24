@@ -57,6 +57,7 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     private weak var contextActionsProvider: MarketsPortfolioContextActionsProvider?
     private weak var contextActionsDelegate: MarketsPortfolioContextActionsDelegate?
 
+    private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -100,6 +101,22 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             .sink(receiveValue: weakify(self, forFunction: MarketsPortfolioTokenItemViewModel.setupState(_:)))
             .store(in: &bag)
 
+        tokenItemInfoProvider
+            .balanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] type in
+                self?.setupBalance(type)
+            })
+            .store(in: &bag)
+
+        tokenItemInfoProvider
+            .fiatBalanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] type in
+                self?.setupFiatBalance(type)
+            })
+            .store(in: &bag)
+
         tokenItemInfoProvider.actionsUpdatePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -113,7 +130,6 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         case .noDerivation:
             missingDerivation = true
             networkUnreachable = false
-            updateBalances()
         case .networkError:
             missingDerivation = false
             networkUnreachable = true
@@ -123,7 +139,6 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         case .loaded, .noAccount:
             missingDerivation = false
             networkUnreachable = false
-            updateBalances()
         case .loading:
             break
         }
@@ -144,8 +159,35 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         ) ?? []
     }
 
-    private func updateBalances() {
-        balanceCrypto = .loaded(text: tokenItemInfoProvider.balance)
-        balanceFiat = .loaded(text: tokenItemInfoProvider.fiatBalance)
+    private func setupBalance(_ type: TokenBalanceType) {
+        switch type {
+        case .loading:
+            break
+        case .failure(let cached): // TODO: add cached on Markets (?)
+            let formatted = balanceFormatter.formatCryptoBalance(cached?.balance, currencyCode: tokenItem.currencySymbol)
+            balanceCrypto = .loaded(text: formatted)
+        case .loaded(let value):
+            let formatted = balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
+            balanceCrypto = .loaded(text: formatted)
+        case .empty:
+            let formatted = balanceFormatter.formatCryptoBalance(.none, currencyCode: tokenItem.currencySymbol)
+            balanceCrypto = .loaded(text: formatted)
+        }
+    }
+
+    private func setupFiatBalance(_ type: TokenBalanceType) {
+        switch type {
+        case .loading:
+            break
+        case .failure(let cached): // TODO: add cached Markets (?)
+            let formatted = balanceFormatter.formatFiatBalance(cached?.balance)
+            balanceFiat = .loaded(text: formatted)
+        case .loaded(let value):
+            let formatted = balanceFormatter.formatFiatBalance(value)
+            balanceFiat = .loaded(text: formatted)
+        case .empty:
+            let formatted = balanceFormatter.formatFiatBalance(.none)
+            balanceFiat = .loaded(text: formatted)
+        }
     }
 }

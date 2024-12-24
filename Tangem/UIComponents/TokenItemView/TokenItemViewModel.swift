@@ -61,6 +61,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private let tokenTapped: (WalletModelId) -> Void
     private let infoProvider: TokenItemInfoProvider
     private let priceChangeUtility = PriceChangeUtility()
+    private let balanceFormatter = BalanceFormatter()
     private let priceFormatter = TokenItemPriceFormatter()
 
     private var bag = Set<AnyCancellable>()
@@ -101,7 +102,25 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
             .receive(on: DispatchQueue.main)
             // We need this debounce to prevent initial sequential state updates that can skip `loading` state
             .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .sink(receiveValue: weakify(self, forFunction: TokenItemViewModel.setupState(_:)))
+            .sink(receiveValue: { [weak self] state in
+                self?.setupState(state)
+            })
+            .store(in: &bag)
+
+        infoProvider
+            .balanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] type in
+                self?.setupBalance(type)
+            })
+            .store(in: &bag)
+
+        infoProvider
+            .fiatBalanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] type in
+                self?.setupFiatBalance(type)
+            })
             .store(in: &bag)
 
         infoProvider.actionsUpdatePublisher
@@ -127,7 +146,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         case .noDerivation:
             missingDerivation = true
             networkUnreachable = false
-            updateBalances()
             updatePriceChange()
         case .networkError:
             missingDerivation = false
@@ -138,7 +156,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         case .loaded, .noAccount:
             missingDerivation = false
             networkUnreachable = false
-            updateBalances()
             updatePriceChange()
         case .loading:
             break
@@ -152,9 +169,36 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         hasPendingTransactions = infoProvider.hasPendingTransactions
     }
 
-    private func updateBalances() {
-        balanceCrypto = .loaded(text: infoProvider.balance)
-        balanceFiat = .loaded(text: infoProvider.fiatBalance)
+    private func setupBalance(_ type: TokenBalanceType) {
+        switch type {
+        case .loading:
+            break
+        case .failure(let cached): // TODO: add cached
+            let formatted = balanceFormatter.formatCryptoBalance(cached?.balance, currencyCode: tokenItem.currencySymbol)
+            balanceCrypto = .loaded(text: formatted)
+        case .loaded(let value):
+            let formatted = balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
+            balanceCrypto = .loaded(text: formatted)
+        case .empty:
+            let formatted = balanceFormatter.formatCryptoBalance(.none, currencyCode: tokenItem.currencySymbol)
+            balanceCrypto = .loaded(text: formatted)
+        }
+    }
+
+    private func setupFiatBalance(_ type: TokenBalanceType) {
+        switch type {
+        case .loading:
+            break
+        case .failure(let cached): // TODO: add cached
+            let formatted = balanceFormatter.formatFiatBalance(cached?.balance)
+            balanceFiat = .loaded(text: formatted)
+        case .loaded(let value):
+            let formatted = balanceFormatter.formatFiatBalance(value)
+            balanceFiat = .loaded(text: formatted)
+        case .empty:
+            let formatted = balanceFormatter.formatFiatBalance(.none)
+            balanceFiat = .loaded(text: formatted)
+        }
     }
 
     private func updatePriceChange() {

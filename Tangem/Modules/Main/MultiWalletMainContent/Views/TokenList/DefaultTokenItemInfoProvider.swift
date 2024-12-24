@@ -11,14 +11,29 @@ import Combine
 
 class DefaultTokenItemInfoProvider {
     private let walletModel: WalletModel
+    private let balanceProvider: TokenBalanceProvider
+    private let fiatBalanceProvider: TokenBalanceProvider
 
     init(walletModel: WalletModel) {
         self.walletModel = walletModel
+
+        balanceProvider = TotalTokenBalanceProvider(walletModel: walletModel)
+        fiatBalanceProvider = FiatBalanceProvider(walletModel: walletModel, cryptoBalanceProvider: balanceProvider)
     }
 }
 
 extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var id: Int { walletModel.id }
+
+    var tokenItem: TokenItem { walletModel.tokenItem }
+
+    var hasPendingTransactions: Bool { walletModel.hasPendingTransactions }
+
+    var quote: TokenQuote? { walletModel.quote }
+
+    var isZeroBalanceValue: Bool {
+        balanceProvider.balanceType.value ?? 0 > 0
+    }
 
     var tokenItemState: TokenItemViewState {
         TokenItemViewState(walletModel: walletModel)
@@ -33,17 +48,13 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
             .eraseToAnyPublisher()
     }
 
-    var tokenItem: TokenItem { walletModel.tokenItem }
+    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
+        balanceProvider.balanceTypePublisher
+    }
 
-    var hasPendingTransactions: Bool { walletModel.hasPendingTransactions }
-
-    var balance: String { walletModel.allBalanceFormatted.crypto }
-
-    var isZeroBalanceValue: Bool { walletModel.totalBalance.crypto?.isZero ?? true }
-
-    var fiatBalance: String { walletModel.allBalanceFormatted.fiat }
-
-    var quote: TokenQuote? { walletModel.quote }
+    var fiatBalanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
+        fiatBalanceProvider.balanceTypePublisher
+    }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { walletModel.actionsUpdatePublisher }
 

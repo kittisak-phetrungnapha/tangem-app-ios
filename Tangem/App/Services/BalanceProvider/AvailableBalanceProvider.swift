@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tangem AG. All rights reserved.
 //
 
+import Foundation
 import TangemFoundation
 
 /// Just simple available to use (e.g. send) balance
@@ -21,13 +22,13 @@ struct AvailableBalanceProvider {
 // MARK: - TokenBalanceProvider
 
 extension AvailableBalanceProvider: TokenBalanceProvider {
-    var balanceType: TokenBalanceType? {
-        mapToAvailableTokenBalanceType(state: walletModel.state)
+    var balanceType: TokenBalanceType {
+        mapToAvailableTokenBalance(state: walletModel.state)
     }
 
-    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType?> {
+    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType> {
         walletModel.statePublisher
-            .map { self.mapToAvailableTokenBalanceType(state: $0) }
+            .map { self.mapToAvailableTokenBalance(state: $0) }
             .eraseToAnyPublisher()
     }
 }
@@ -35,20 +36,20 @@ extension AvailableBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 private extension AvailableBalanceProvider {
-    func mapToAvailableTokenBalanceType(state: WalletModel.State) -> TokenBalanceType? {
+    func mapToAvailableTokenBalance(state: WalletModel.State) -> TokenBalanceType {
         switch state {
         case .loading:
-            return .loading(cached: nil)
+            return .loading(nil)
         case .loaded(let balance):
-            return .loaded(balance: balance)
+            return .loaded(balance)
         case .created:
-            return .cached(balance: nil)
+            return .empty
         case .noAccount:
-            return .loaded(balance: .noAccount(tokenItem: tokenItem))
-        case .failed(error: let error):
-            return .failure(cached: nil)
+            return .noAccount
+        case .failed:
+            return .failure(nil)
         case .noDerivation:
-            return nil
+            return .empty
         }
     }
 }

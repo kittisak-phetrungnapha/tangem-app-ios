@@ -7438,7 +7438,6 @@
 				B012A1102AA5A75A0079BAB4 /* WalletModel+State.swift */,
 				EF0DD78F2B026A840099527D /* WalletModel+ExpressWallet.swift */,
 				EFEB07C02C7CDFBC00E88352 /* WalletModel+Balance.swift */,
-				EF42D7682D1AF5210065AFD1 /* WalletModel+BalanceProvider.swift */,
 			);
 			path = WalletModel;
 			sourceTree = "<group>";
@@ -18003,7 +18002,6 @@
 				DC70C01B2B95EEEF002205BA /* KeysDerivingCardInteractor.swift in Sources */,
 				B60275292A7A626200865EA7 /* CornerRadiusAnimatableModifier.swift in Sources */,
 				DA5BB72E2AF3FA97004CB8D0 /* AddressIconViewModel.swift in Sources */,
-				EF42D7692D1AF5260065AFD1 /* WalletModel+BalanceProvider.swift in Sources */,
 				B6AE4DA52C530C7500070D96 /* MarketsHistoryChartProviderStub.swift in Sources */,
 				B0E1C2422C2430C6005309E1 /* AlertBuilder.swift in Sources */,
 				B002416F2C2441EF00416397 /* HideTokenAlertBuilder.swift in Sources */,

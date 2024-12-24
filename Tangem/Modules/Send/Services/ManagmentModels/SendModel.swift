@@ -354,10 +354,7 @@ extension SendModel: NotificationTapDelegate {
         case .openFeeCurrency:
             router?.openNetworkCurrency()
         case .leaveAmount(let amount, _):
-            guard let balance = balanceProvider.balanceType?.balance?.value else {
-                return
-            }
-            reduceAmountBy(amount, source: balance)
+            balanceProvider.balanceType.value.flatMap { reduceAmountBy(amount, source: $0) }
         case .reduceAmountBy(let amount, _):
             _amount.value?.crypto.flatMap { reduceAmountBy(amount, source: $0) }
         case .reduceAmountTo(let amount, _):

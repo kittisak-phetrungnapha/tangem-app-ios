@@ -64,10 +64,10 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
                 case .loading:
                     self?.balanceState = .loading
                 case .loaded(let balance):
-                    let formatted = BalanceFormatter().formatDecimal(balance.value)
+                    let formatted = BalanceFormatter().formatDecimal(balance)
                     self?.balanceState = .formatted(formatted)
                 // No balance cases
-                case .none, .cached, .failure:
+                case .empty, .failure:
                     self?.balanceState = .formatted(BalanceFormatter.defaultEmptyBalanceString)
                 }
             }

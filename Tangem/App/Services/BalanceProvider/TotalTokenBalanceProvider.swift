@@ -13,7 +13,6 @@ import TangemStaking
 /// Total crypto balance (available+staking)
 struct TotalTokenBalanceProvider {
     private let walletModel: WalletModel
-    private var tokenItem: TokenItem { walletModel.tokenItem }
 
     init(walletModel: WalletModel) {
         self.walletModel = walletModel
@@ -23,17 +22,17 @@ struct TotalTokenBalanceProvider {
 // MARK: - TokenBalanceProvider
 
 extension TotalTokenBalanceProvider: TokenBalanceProvider {
-    var balanceType: TokenBalanceType? {
-        mapToAvailableTokenBalanceType(walletState: walletModel.state, stakingState: walletModel.stakingManagerState)
+    var balanceType: TokenBalanceType {
+        mapToAvailableTokenBalance(walletState: walletModel.state, stakingState: walletModel.stakingManagerState)
     }
 
-    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType?> {
+    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType> {
         Publishers.CombineLatest(
             walletModel.statePublisher,
             walletModel.stakingManagerStatePublisher
         )
 
-        .map { self.mapToAvailableTokenBalanceType(walletState: $0, stakingState: $1) }
+        .map { self.mapToAvailableTokenBalance(walletState: $0, stakingState: $1) }
         .eraseToAnyPublisher()
     }
 }
@@ -41,43 +40,43 @@ extension TotalTokenBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 private extension TotalTokenBalanceProvider {
-    func mapToAvailableTokenBalanceType(walletState: WalletModel.State, stakingState: StakingManagerState) -> TokenBalanceType? {
+    func mapToAvailableTokenBalance(walletState: WalletModel.State, stakingState: StakingManagerState) -> TokenBalanceType {
         switch (walletState, stakingState) {
         // Token doesn't support staking
         // Then only available balance
         case (.loaded(let balance), .notEnabled):
-            return .loaded(balance: balance)
+            return .loaded(balance)
 
         // Token support staking but don't have any stakes
         // Token support staking but it temporary unavailable
         // Then only available balance
         case (.loaded(let balance), .availableToStake),
              (.loaded(let balance), .temporaryUnavailable):
-            return .loaded(balance: balance)
+            return .loaded(balance)
 
         // One on them have error
         // Then show cached with error
         case (.failed(let error), _), (_, .loadingError(let error)):
-            return .failure(cached: nil)
+            return .failure(nil)
 
         // Both was loaded
         // Then show the sum of both
         case (.loaded(let balance), .staked(let balances)):
             let staked = balances.balances.blocked().sum()
-            return .loaded(balance: balance)
+            return .loaded(balance)
 
         // Token hasn't account
         // Then show the zero of both
         case (.noAccount, _):
-            return .loaded(balance: .noAccount(tokenItem: tokenItem))
+            return .noAccount
 
         // One on them is loading
         case (.loading, _), (_, .loading):
-            return .loading(cached: nil)
+            return .loading(nil)
 
         // No balances cases
         case (.created, _), (.noDerivation, _):
-            return nil
+            return .empty
         }
     }
 }

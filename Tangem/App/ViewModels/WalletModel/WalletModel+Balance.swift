@@ -14,9 +14,10 @@ import TangemStaking
 extension WalletModel {
     @available(*, deprecated, message: "Use AvailableBalanceProvider")
     var balanceValue: Decimal? {
-        AvailableBalanceProvider(walletModel: self).balanceType?.balance?.value
+        AvailableBalanceProvider(walletModel: self).balanceType.value
     }
 
+    /// availableBalanceFormatted.crypto
     var balance: String {
         availableBalanceFormatted.crypto
     }
@@ -25,10 +26,12 @@ extension WalletModel {
         wallet.amounts[amountType]?.isZero ?? true
     }
 
+    /// availableBalanceFormatted.fiat
     var fiatBalance: String {
         availableBalanceFormatted.fiat
     }
 
+    /// availableBalance.fiat
     var fiatValue: Decimal? {
         availableBalance.fiat
     }

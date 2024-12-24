@@ -9,7 +9,7 @@
 import Foundation
 
 struct HederaAccountBalance {
-    struct TokenBalance {
+    struct TokenBalanceType {
         let contractAddress: String
         /// In atomic units.
         let balance: Int
@@ -18,5 +18,5 @@ struct HederaAccountBalance {
 
     /// In atomic units (i.e. Tinybars).
     let hbarBalance: Int
-    let tokenBalances: [TokenBalance]
+    let tokenBalances: [TokenBalanceType]
 }

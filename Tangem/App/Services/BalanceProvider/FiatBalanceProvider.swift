@@ -27,17 +27,17 @@ struct FiatBalanceProvider {
 // MARK: - TokenBalanceProvider
 
 extension FiatBalanceProvider: TokenBalanceProvider {
-    var balanceType: TokenBalanceType? {
-        mapToTokenBalanceType(balanceType: cryptoBalanceProvider.balanceType)
+    var balanceType: TokenBalanceType {
+        mapToTokenBalance(balanceType: cryptoBalanceProvider.balanceType)
     }
 
-    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType?> {
+    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType> {
         Publishers.CombineLatest(
             // Listen if rate was loaded after main balance
             walletModel.ratePublisher.removeDuplicates(),
             cryptoBalanceProvider.balanceTypePublisher
         )
-        .map { self.mapToTokenBalanceType(balanceType: $1) }
+        .map { self.mapToTokenBalance(balanceType: $1) }
         .eraseToAnyPublisher()
     }
 }
@@ -45,23 +45,22 @@ extension FiatBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 extension FiatBalanceProvider {
-    func mapToTokenBalanceType(balanceType: TokenBalanceType?) -> TokenBalanceType? {
-        guard let balance = balanceType?.balance,
+    func mapToTokenBalance(balanceType: TokenBalanceType) -> TokenBalanceType {
+        guard let balance = balanceType.value,
               let currencyId = currencyId,
-              let fiat = converter.convertToFiat(balance.value, currencyId: currencyId) else {
-            return nil
+              let fiat = converter.convertToFiat(balance, currencyId: currencyId) else {
+            return .empty
         }
 
         switch balanceType {
-        case .none: return .none
-        case .cached(let balance):
-            return .cached(balance: balance.map { $0.updated(balance: fiat) })
-        case .loading(let balance):
-            return .loading(cached: balance.map { $0.updated(balance: fiat) })
-        case .failure(let balance):
-            return .failure(cached: balance.map { $0.updated(balance: fiat) })
-        case .loaded(let balance):
-            return .loaded(balance: balance.updated(balance: fiat))
+        case .empty:
+            return .empty
+        case .loading:
+            return .loading(fiat)
+        case .failure(let cached):
+            return .failure(cached.flatMap { .init(balance: fiat, date: $0.date) })
+        case .loaded:
+            return .loaded(fiat)
         }
     }
 }
