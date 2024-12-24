@@ -12,8 +12,9 @@ import TangemStaking
 // MARK: - Balance
 
 extension WalletModel {
+    @available(*, deprecated, message: "Use AvailableBalanceProvider")
     var balanceValue: Decimal? {
-        availableBalance.crypto
+        AvailableBalanceProvider(walletModel: self).balanceType?.balance?.value
     }
 
     var balance: String {

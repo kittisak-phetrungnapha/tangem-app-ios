@@ -10,30 +10,35 @@ import Combine
 import TangemFoundation
 import TangemStaking
 
-/// Just simple available to use (e.g. send) balance
+/// a.k.a Fiat converter
 struct FiatBalanceProvider {
-    private let cryptoBalanceProvider: BalanceProvider
-    private let currencyId: String?
+    private let walletModel: WalletModel
+    private let cryptoBalanceProvider: TokenBalanceProvider
 
+    private var currencyId: String? { walletModel.tokenItem.currencyId }
     private let converter = BalanceConverter()
 
-    init(cryptoBalanceProvider: BalanceProvider, currencyId: String?) {
+    init(walletModel: WalletModel, cryptoBalanceProvider: TokenBalanceProvider) {
+        self.walletModel = walletModel
         self.cryptoBalanceProvider = cryptoBalanceProvider
-        self.currencyId = currencyId
     }
 }
 
-// MARK: - AvailableBalanceProvider
+// MARK: - TokenBalanceProvider
 
-extension FiatBalanceProvider: BalanceProvider {
-    var balance: TokenBalanceType? {
-        mapToTokenBalanceType(balanceType: cryptoBalanceProvider.balance)
+extension FiatBalanceProvider: TokenBalanceProvider {
+    var balanceType: TokenBalanceType? {
+        mapToTokenBalanceType(balanceType: cryptoBalanceProvider.balanceType)
     }
 
-    var balancePublisher: AnyValuePublisher<TokenBalanceType?> {
-        cryptoBalanceProvider.balancePublisher
-            .map { self.mapToTokenBalanceType(balanceType: $0) }
-            .eraseToAnyPublisher()
+    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType?> {
+        Publishers.CombineLatest(
+            // Listen if rate was loaded after main balance
+            walletModel.ratePublisher.removeDuplicates(),
+            cryptoBalanceProvider.balanceTypePublisher
+        )
+        .map { self.mapToTokenBalanceType(balanceType: $1) }
+        .eraseToAnyPublisher()
     }
 }
 
@@ -43,7 +48,7 @@ extension FiatBalanceProvider {
     func mapToTokenBalanceType(balanceType: TokenBalanceType?) -> TokenBalanceType? {
         guard let balance = balanceType?.balance,
               let currencyId = currencyId,
-              let fiat = converter.convertToFiat(balance.balance, currencyId: currencyId) else {
+              let fiat = converter.convertToFiat(balance.value, currencyId: currencyId) else {
             return nil
         }
 

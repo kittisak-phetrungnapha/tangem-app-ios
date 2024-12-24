@@ -85,7 +85,9 @@ final class ExpressViewModel: ObservableObject {
     }
 
     func userDidTapMaxAmount() {
-        guard let sourceBalance = interactor.getSender().balanceValue else {
+        // We have to make provider on flight because the `sender` can different every calls
+        let provider = AvailableBalanceProvider(walletModel: interactor.getSender())
+        guard let sourceBalance = provider.balanceType?.balance?.value else {
             return
         }
 

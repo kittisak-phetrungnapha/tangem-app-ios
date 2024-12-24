@@ -18,14 +18,14 @@ struct AvailableBalanceProvider {
     }
 }
 
-// MARK: - AvailableBalanceProvider
+// MARK: - TokenBalanceProvider
 
-extension AvailableBalanceProvider: BalanceProvider {
-    var balance: TokenBalanceType? {
+extension AvailableBalanceProvider: TokenBalanceProvider {
+    var balanceType: TokenBalanceType? {
         mapToAvailableTokenBalanceType(state: walletModel.state)
     }
 
-    var balancePublisher: AnyValuePublisher<TokenBalanceType?> {
+    var balanceTypePublisher: AnyValuePublisher<TokenBalanceType?> {
         walletModel.statePublisher
             .map { self.mapToAvailableTokenBalanceType(state: $0) }
             .eraseToAnyPublisher()

@@ -58,14 +58,16 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
             symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
 
-            walletDidChangeSubscription = wallet.walletDidChangePublisher.sink { [weak self] state in
+            let provider = AvailableBalanceProvider(walletModel: wallet)
+            walletDidChangeSubscription = provider.balanceTypePublisher.sink { [weak self] state in
                 switch state {
-                case .created, .loading:
+                case .loading:
                     self?.balanceState = .loading
-                case .loaded:
-                    let formatted = wallet.balanceValue.map { BalanceFormatter().formatDecimal($0) }
-                    self?.balanceState = .formatted(formatted ?? BalanceFormatter.defaultEmptyBalanceString)
-                case .noAccount, .failed, .noDerivation:
+                case .loaded(let balance):
+                    let formatted = BalanceFormatter().formatDecimal(balance.value)
+                    self?.balanceState = .formatted(formatted)
+                // No balance cases
+                case .none, .cached, .failure:
                     self?.balanceState = .formatted(BalanceFormatter.defaultEmptyBalanceString)
                 }
             }
