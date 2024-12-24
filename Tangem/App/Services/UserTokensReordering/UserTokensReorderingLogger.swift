@@ -67,8 +67,8 @@ struct UserTokensReorderingLogger {
         switch state {
         case .created:
             return "created"
-        case .loaded:
-            return "loaded"
+        case .loaded(let balance):
+            return "loaded balance: \(balance)"
         case .loading:
             return "loading"
         case .noAccount:
