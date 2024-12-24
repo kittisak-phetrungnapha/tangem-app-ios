@@ -172,7 +172,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private func setupBalance(_ type: TokenBalanceType) {
         switch type {
         case .loading:
-            break
+            balanceCrypto = .loading
         case .failure(let cached): // TODO: add cached
             let formatted = balanceFormatter.formatCryptoBalance(cached?.balance, currencyCode: tokenItem.currencySymbol)
             balanceCrypto = .loaded(text: formatted)
@@ -188,7 +188,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private func setupFiatBalance(_ type: TokenBalanceType) {
         switch type {
         case .loading:
-            break
+            balanceFiat = .loading
         case .failure(let cached): // TODO: add cached
             let formatted = balanceFormatter.formatFiatBalance(cached?.balance)
             balanceFiat = .loaded(text: formatted)

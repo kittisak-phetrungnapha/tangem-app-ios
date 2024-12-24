@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TangemFoundation
+import Combine
 
 /// Just simple available to use (e.g. send) balance
 struct AvailableBalanceProvider {

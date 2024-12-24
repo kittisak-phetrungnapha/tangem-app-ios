@@ -68,7 +68,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                 case .loaded:
                     if shouldGoToNextStep,
                        !walletModel.isEmptyIncludingPendingIncomingTxs,
-                       !walletModel.isZeroAmount {
+                       walletModel.balanceState == .positive {
                         if let userWalletId = viewModel.userWalletModel?.userWalletId {
                             Analytics.logTopUpIfNeeded(balance: walletModel.fiatValue ?? 0, for: userWalletId)
                         }
@@ -104,7 +104,8 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
             let zeroAmount = Amount(with: model.wallet.blockchain, type: .coin, value: 0)
             cardBalance = zeroAmount.string(with: 8)
         } else {
-            cardBalance = model.balance
+            let balance = AvailableBalanceProvider(walletModel: model).balanceType.value
+            cardBalance = BalanceFormatter().formatCryptoBalance(balance, currencyCode: model.tokenItem.currencySymbol)
         }
     }
 

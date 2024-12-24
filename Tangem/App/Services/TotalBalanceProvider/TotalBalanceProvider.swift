@@ -204,14 +204,14 @@ private extension TotalBalanceProvider {
         }
 
         for trackedModel in trackedModels {
-            let balanceValue = trackedModel.balanceValue ?? 0
+            let positiveBalance = trackedModel.balanceState == .positive
 
             Analytics.log(
                 event:
                 .tokenBalanceLoaded,
                 params: [
                     .token: trackedModel.blockchainNetwork.blockchain.currencySymbol,
-                    .state: balanceValue > 0 ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
+                    .state: positiveBalance ? Analytics.ParameterValue.full.rawValue : Analytics.ParameterValue.empty.rawValue,
                 ],
                 limit: .userWalletSession(userWalletId: userWalletId, extraEventId: trackedModel.blockchainNetwork.blockchain.currencySymbol)
             )

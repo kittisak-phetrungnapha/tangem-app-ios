@@ -15,9 +15,6 @@ struct FiatBalanceProvider {
     private let walletModel: WalletModel
     private let cryptoBalanceProvider: TokenBalanceProvider
 
-    private var currencyId: String? { walletModel.tokenItem.currencyId }
-    private let converter = BalanceConverter()
-
     init(walletModel: WalletModel, cryptoBalanceProvider: TokenBalanceProvider) {
         self.walletModel = walletModel
         self.cryptoBalanceProvider = cryptoBalanceProvider
@@ -28,16 +25,16 @@ struct FiatBalanceProvider {
 
 extension FiatBalanceProvider: TokenBalanceProvider {
     var balanceType: TokenBalanceType {
-        mapToTokenBalance(balanceType: cryptoBalanceProvider.balanceType)
+        mapToTokenBalance(rate: walletModel.rate, balanceType: cryptoBalanceProvider.balanceType)
     }
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         Publishers.CombineLatest(
             // Listen if rate was loaded after main balance
             walletModel.ratePublisher.removeDuplicates(),
-            cryptoBalanceProvider.balanceTypePublisher
+            cryptoBalanceProvider.balanceTypePublisher.removeDuplicates()
         )
-        .map { self.mapToTokenBalance(balanceType: $1) }
+        .map { self.mapToTokenBalance(rate: $0, balanceType: $1) }
         .eraseToAnyPublisher()
     }
 }
@@ -45,21 +42,28 @@ extension FiatBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 extension FiatBalanceProvider {
-    func mapToTokenBalance(balanceType: TokenBalanceType) -> TokenBalanceType {
-        guard let balance = balanceType.value,
-              let currencyId = currencyId,
-              let fiat = converter.convertToFiat(balance, currencyId: currencyId) else {
+    func mapToTokenBalance(rate: LoadingResult<Decimal?, Never>, balanceType: TokenBalanceType) -> TokenBalanceType {
+        guard let currencyId = walletModel.tokenItem.currencyId else {
             return .empty
         }
 
-        switch balanceType {
-        case .empty:
+        switch (rate, balanceType) {
+        // There is no one value (no rate or no crypto balance to show)
+        case (_, .empty), (.success(.none), _), (_, .failure(.none)):
             return .empty
-        case .loading:
-            return .loading(fiat)
-        case .failure(let cached):
-            return .failure(cached.flatMap { .init(balance: fiat, date: $0.date) })
-        case .loaded:
+
+        // There is one value is loading
+        case (_, .loading), (.loading, _):
+            return .loading(nil) // TODO: Add cache
+
+        // Has some rate but only cached value
+        case (.success(.some(let rate)), .failure(.some(let cached))):
+            let fiat = cached.balance * rate
+            return .failure(.init(balance: fiat, date: cached.date))
+
+        // Has some rate and some value
+        case (.success(.some(let rate)), .loaded(let value)):
+            let fiat = value * rate
             return .loaded(fiat)
         }
     }

@@ -46,13 +46,14 @@ struct UserTokensReorderingLogger {
     ) -> String {
         let walletModel = walletModelsKeyedByIds[item.walletModelId]
         let objectDescription = "Token: \(item.name)"
+        let balanceValue = walletModel.map { AvailableBalanceProvider(walletModel: $0) }?.balanceType
 
         return ObjectDescriptionFormatter.format(
             objectDescription: objectDescription,
             userInfo: [
                 "state": description(for: walletModel?.state),
                 "fiatValue": description(for: walletModel?.fiatValue),
-                "balanceValue": description(for: walletModel?.balanceValue),
+                "balanceValue": description(for: balanceValue),
                 "canUseQuotes": description(for: walletModel?.canUseQuotes),
                 "isCustom": description(for: walletModel?.isCustom),
             ]

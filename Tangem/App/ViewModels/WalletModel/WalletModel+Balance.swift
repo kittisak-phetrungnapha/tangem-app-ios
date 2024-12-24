@@ -11,27 +11,40 @@ import TangemStaking
 
 // MARK: - Balance
 
+enum BalanceState {
+    case zero
+    case positive
+}
+
 extension WalletModel {
-    @available(*, deprecated, message: "Use AvailableBalanceProvider")
-    var balanceValue: Decimal? {
-        AvailableBalanceProvider(walletModel: self).balanceType.value
-    }
+//    @available(*, deprecated, message: "Use AvailableBalanceProvider")
+//    var balanceValue: Decimal? {
+//        AvailableBalanceProvider(walletModel: self).balanceType.value
+//    }
 
     /// availableBalanceFormatted.crypto
-    var balance: String {
-        availableBalanceFormatted.crypto
-    }
+//    @available(*, deprecated, message: "Use AvailableBalanceProvider")
+//    var balance: String {
+//        availableBalanceFormatted.crypto
+//    }
 
-    var isZeroAmount: Bool {
-        wallet.amounts[amountType]?.isZero ?? true
+    /// `True` if the token has balance even `.zero`
+    var balanceState: BalanceState? {
+        switch wallet.amounts[amountType]?.value {
+        case .none: .none
+        case .zero: .zero
+        case .some: .positive
+        }
     }
 
     /// availableBalanceFormatted.fiat
+    @available(*, deprecated, message: "Use AvailableBalanceProvider")
     var fiatBalance: String {
         availableBalanceFormatted.fiat
     }
 
     /// availableBalance.fiat
+    @available(*, deprecated, message: "Use AvailableBalanceProvider")
     var fiatValue: Decimal? {
         availableBalance.fiat
     }

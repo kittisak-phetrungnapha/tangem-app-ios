@@ -38,6 +38,7 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     // For Analytics
     private var selectedWallet: WalletModel?
     private var updateTask: Task<Void, Never>?
+    private let balanceFormatter = BalanceFormatter()
 
     init(
         swapDirection: SwapDirection,
@@ -185,13 +186,16 @@ private extension ExpressTokensListViewModel {
 
     func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
+        let balanceProvider = AvailableBalanceProvider(walletModel: walletModel)
+        let fiatBalanceProvider = FiatBalanceProvider(walletModel: walletModel, cryptoBalanceProvider: balanceProvider)
+
         return ExpressTokenItemViewModel(
             id: walletModel.id,
             tokenIconInfo: tokenIconInfo,
             name: walletModel.name,
             symbol: walletModel.tokenItem.currencySymbol,
-            balance: walletModel.balance,
-            fiatBalance: walletModel.fiatBalance,
+            balance: balanceFormatter.formatFiatBalance(balanceProvider.balanceType.value),
+            fiatBalance: balanceFormatter.formatFiatBalance(fiatBalanceProvider.balanceType.value),
             isDisable: isDisable,
             itemDidTap: { [weak self] in
                 self?.userDidTap(on: walletModel)
