@@ -37,7 +37,7 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
         self.isUserWalletLocked = isUserWalletLocked
 
         tokenItem = walletModel?.tokenItem
-        balanceProvider = walletModel.map { TotalTokenBalanceProvider(walletModel: $0) }
+        balanceProvider = walletModel.map { $0.combineBalanceProvider }
         isLoadingSubject = .init(!isUserWalletLocked)
 
         initialSetup()

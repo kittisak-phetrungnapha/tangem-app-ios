@@ -9,44 +9,10 @@
 import Foundation
 import TangemStaking
 
-// MARK: - Balance
-
-enum BalanceState {
-    case zero
-    case positive
-}
+// MARK: - BalanceState
 
 extension WalletModel {
-    var availableBalanceProvider: TokenBalanceProvider {
-        AvailableBalanceProvider(walletModel: self)
-    }
-
-    var totalBalanceProvider: TokenBalanceProvider {
-        TotalTokenBalanceProvider(walletModel: self)
-    }
-
-    var availableFiatBalanceProvider: TokenBalanceProvider {
-        FiatBalanceProvider(walletModel: self, cryptoBalanceProvider: availableBalanceProvider)
-    }
-
-    var totalFiatBalanceProvider: TokenBalanceProvider {
-        FiatBalanceProvider(walletModel: self, cryptoBalanceProvider: totalBalanceProvider)
-    }
-}
-
-extension WalletModel {
-//    @available(*, deprecated, message: "Use AvailableBalanceProvider")
-//    var balanceValue: Decimal? {
-//        AvailableBalanceProvider(walletModel: self).balanceType.value
-//    }
-
-    /// availableBalanceFormatted.crypto
-//    @available(*, deprecated, message: "Use AvailableBalanceProvider")
-//    var balance: String {
-//        availableBalanceFormatted.crypto
-//    }
-
-    /// `True` if the token has balance even `.zero`
+    /// Simple flag to check exactly BSDK balance
     var balanceState: BalanceState? {
         switch wallet.amounts[amountType]?.value {
         case .none: .none
@@ -55,13 +21,74 @@ extension WalletModel {
         }
     }
 
-    /// availableBalanceFormatted.fiat
+    enum BalanceState {
+        case zero
+        case positive
+    }
+}
+
+extension WalletModel {
+    // MARK: - Crypto
+
+    var availableBalanceProvider: TokenBalanceProvider {
+        AvailableBalanceProvider(walletModel: self)
+    }
+
+    var stakingBalanceProvider: TokenBalanceProvider {
+        StakingBalanceProvider(walletModel: self)
+    }
+
+    var combineBalanceProvider: TokenBalanceProvider {
+        CombineBalanceProvider(
+            walletModel: self,
+            availableBalanceProvider: availableBalanceProvider,
+            stakingBalanceProvider: stakingBalanceProvider
+        )
+    }
+
+    // MARK: - Fiat
+
+    var availableFiatBalanceProvider: TokenBalanceProvider {
+        FiatBalanceProvider(walletModel: self, cryptoBalanceProvider: availableBalanceProvider)
+    }
+
+    var stakingFiatBalanceProvider: TokenBalanceProvider {
+        FiatBalanceProvider(walletModel: self, cryptoBalanceProvider: stakingBalanceProvider)
+    }
+
+    var totalFiatBalanceProvider: TokenBalanceProvider {
+        FiatBalanceProvider(walletModel: self, cryptoBalanceProvider: combineBalanceProvider)
+    }
+}
+
+// extension WalletModel {
+//    @available(*, deprecated, message: "Use AvailableBalanceProvider")
+//    var balanceValue: Decimal? {
+//        AvailableBalanceProvider(walletModel: self).balanceType.value
+//    }
+
+/// availableBalanceFormatted.crypto
+//    @available(*, deprecated, message: "Use AvailableBalanceProvider")
+//    var balance: String {
+//        availableBalanceFormatted.crypto
+//    }
+
+/// `True` if the token has balance even `.zero`
+//    var balanceState: BalanceState? {
+//        switch wallet.amounts[amountType]?.value {
+//        case .none: .none
+//        case .zero: .zero
+//        case .some: .positive
+//        }
+//    }
+
+/// availableBalanceFormatted.fiat
 //    @available(*, deprecated, message: "Use AvailableBalanceProvider")
 //    var fiatBalance: String {
 //        availableBalanceFormatted.fiat
 //    }
 
-    /// availableBalance.fiat
+/// availableBalance.fiat
 //    @available(*, deprecated, message: "Use AvailableBalanceProvider")
 //    var fiatValue: Decimal? {
 //        availableBalance.fiat
@@ -197,7 +224,7 @@ extension WalletModel {
 //
 //        return .init(crypto: cryptoFormatted, fiat: fiatFormatted)
 //    }
-}
+// }
 
 extension WalletModel {
     // MARK: - Crypto

@@ -327,7 +327,7 @@ extension TokenDetailsViewModel: SingleTokenNotificationManagerInteractionDelega
 extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
     var totalCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
         walletModel
-            .totalBalanceProvider
+            .combineBalanceProvider
             .formattedBalanceTypePublisher
             .map { balanceType in
                 switch balanceType {
