@@ -24,6 +24,7 @@ final class MultiWalletNotificationManager {
     }
 
     private func bind() {
+        // TODO: Use total balance publisher with failure case checking
         updateSubscription = walletModelsManager.walletModelsPublisher
             .removeDuplicates()
             .flatMap { walletModels in

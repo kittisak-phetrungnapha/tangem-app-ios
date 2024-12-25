@@ -150,6 +150,7 @@ extension CommonTangemApiService: TangemApiService {
             .filterSuccessfulStatusAndRedirectCodes()
             .map(QuotesDTO.Response.self)
             .eraseError()
+            .delay(for: .seconds(60), scheduler: DispatchQueue.global())
             .map { response in
                 QuotesMapper().mapToQuotes(response)
             }

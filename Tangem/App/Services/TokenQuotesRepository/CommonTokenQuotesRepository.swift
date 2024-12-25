@@ -77,6 +77,7 @@ extension CommonTokenQuotesRepository: TokenQuotesRepository {
 
         return tangemApiService
             .loadQuotes(requestModel: request)
+            .delay(for: 10, scheduler: DispatchQueue.global())
             .compactMap { [weak self] quotes in
                 let price = quotes.first(where: { $0.id == currencyId })?.price
                 self?._prices.value[item] = price

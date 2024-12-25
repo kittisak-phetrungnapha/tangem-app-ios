@@ -81,9 +81,8 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
         switch (all, available) {
         case (.loading, _), (_, .loading):
             // If one of them is loading then not choose
-            balanceTypeValues = nil
-            isLoadingBalance = true
-            cryptoBalance = BalanceFormatter.defaultEmptyBalanceString
+            // Do nothing to avoid jumping animations
+            break
 
         case (.success(let all), .success(let available)):
             // If there's no difference if values is equal
@@ -100,8 +99,8 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     ) {
         switch (all, available) {
         case (.loading, _), (_, .loading):
-            isLoadingFiatBalance = true
-            cryptoBalance = BalanceFormatter.defaultEmptyBalanceString
+            // Do nothing to avoid jumping animations
+            break
 
         case (.success(let all), .success(let available)):
             isLoadingFiatBalance = false

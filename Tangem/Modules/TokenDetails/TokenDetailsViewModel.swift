@@ -29,7 +29,8 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     private weak var coordinator: TokenDetailsRoutable?
     private let bannerNotificationManager: NotificationManager?
     private let xpubGenerator: XPUBGenerator?
-
+    private let balanceConverter = BalanceConverter()
+    private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
 
     var iconUrl: URL? {
@@ -249,24 +250,44 @@ private extension TokenDetailsViewModel {
         case .loadingError, .temporaryUnavailable:
             activeStakingViewData = .init(balance: .loadingError, rewards: .none)
         case .staked(let staked):
-            let rewards: ActiveStakingViewData.RewardsState? = {
-                switch (staked.yieldInfo.rewardClaimingType, walletModel.stakedRewards.fiat) {
-                case (.auto, _):
-                    return nil
-                case (.manual, .none):
-                    return .noRewards
-                case (.manual, .some):
-                    return .rewardsToClaim(walletModel.stakedRewardsFormatted.fiat)
-                }
-            }()
+            let rewards = mapToRewardsState(staked: staked)
+            let balance = mapToStakedBalance(staked: staked)
 
             activeStakingViewData = ActiveStakingViewData(
-                balance: .balance(walletModel.stakedWithPendingBalanceFormatted, action: { [weak self] in
-                    self?.openStaking()
-                }),
+                balance: .balance(balance) { [weak self] in self?.openStaking() },
                 rewards: rewards
             )
         }
+    }
+
+    func mapToRewardsState(staked: StakingManagerState.Staked) -> ActiveStakingViewData.RewardsState? {
+        switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
+        case (.auto, _):
+            return nil
+        case (.manual, .zero):
+            return .noRewards
+        case (.manual, let rewards):
+            let stakedRewardsFiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
+                balanceConverter.convertToFiat(rewards, currencyId: currencyId)
+            }
+            let formatted = balanceFormatter.formatFiatBalance(stakedRewardsFiat)
+            return .rewardsToClaim(formatted)
+        }
+    }
+
+    func mapToStakedBalance(staked: StakingManagerState.Staked) -> WalletModel.BalanceFormatted {
+        let stakedWithPendingBalance = staked.balances.stakes().sum()
+        let stakedWithPendingBalanceFormatted = balanceFormatter.formatCryptoBalance(stakedWithPendingBalance, currencyCode: walletModel.tokenItem.currencySymbol)
+
+        let stakedWithPendingFiatBalance = walletModel.tokenItem.currencyId.flatMap { currencyId in
+            balanceConverter.convertToFiat(stakedWithPendingBalance, currencyId: currencyId)
+        }
+        let stakedWithPendingFiatBalanceFormatted = balanceFormatter.formatFiatBalance(stakedWithPendingFiatBalance)
+
+        return .init(
+            crypto: stakedWithPendingBalanceFormatted,
+            fiat: stakedWithPendingFiatBalanceFormatted
+        )
     }
 }
 
@@ -289,7 +310,7 @@ private extension TokenDetailsViewModel {
     }
 }
 
-// MARK: - SingleTokenNotificationManagerInteractionDelegate protocol conformance
+// MARK: - SingleTokenNotificationManagerInteractionDelegate
 
 extension TokenDetailsViewModel: SingleTokenNotificationManagerInteractionDelegate {
     func confirmDiscardingUnfulfilledAssetRequirements(
@@ -301,7 +322,7 @@ extension TokenDetailsViewModel: SingleTokenNotificationManagerInteractionDelega
     }
 }
 
-// MARK: - SingleTokenNotificationManagerInteractionDelegate protocol conformance
+// MARK: - BalanceWithButtonsViewModelBalanceProvider
 
 extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
     var totalCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {

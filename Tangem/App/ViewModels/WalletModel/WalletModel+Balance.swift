@@ -132,18 +132,18 @@ extension WalletModel {
 //        return .init(crypto: cryptoBalance, fiat: fiatBalance)
 //    }
 
-    var stakedRewards: Balance {
-        let rewardsToClaim = stakingManager?.balances?.rewards().sum()
-        let fiatBalance: Decimal? = {
-            guard let rewardsToClaim, let currencyId = tokenItem.currencyId else {
-                return nil
-            }
-
-            return converter.convertToFiat(rewardsToClaim, currencyId: currencyId)
-        }()
-
-        return .init(crypto: rewardsToClaim, fiat: fiatBalance)
-    }
+//    var stakedRewards: Balance {
+//        let rewardsToClaim = stakingManager?.balances?.rewards().sum()
+//        let fiatBalance: Decimal? = {
+//            guard let currencyId = tokenItem.currencyId else {
+//                return nil
+//            }
+//
+//            return converter.convertToFiat(rewardsToClaim, currencyId: currencyId)
+//        }()
+//
+//        return .init(crypto: rewardsToClaim, fiat: fiatBalance)
+//    }
 
 //    var allBalanceFormatted: BalanceFormatted {
 //        formatted(totalBalance)
@@ -153,50 +153,50 @@ extension WalletModel {
 //        formatted(availableBalance)
 //    }
 
-    var stakedWithPendingBalanceFormatted: BalanceFormatted {
-        formatted(stakedWithPendingBalance)
-    }
+//    var stakedWithPendingBalanceFormatted: BalanceFormatted {
+//        formatted(stakedWithPendingBalance)
+//    }
 
-    var stakedBalanceFormatted: BalanceFormatted {
-        formatted(stakedBalance)
-    }
+//    var stakedBalanceFormatted: BalanceFormatted {
+//        formatted(stakedBalance)
+//    }
 
-    var stakedRewardsFormatted: BalanceFormatted {
-        formatted(stakedRewards)
-    }
+//    var stakedRewardsFormatted: BalanceFormatted {
+//        formatted(stakedRewards)
+//    }
 
-    private var stakedBalance: Balance {
-        let stakingBalance = stakingManager?.balances?.blocked().sum()
-        let fiatBalance: Decimal? = {
-            guard let stakingBalance, let currencyId = tokenItem.currencyId else {
-                return nil
-            }
-
-            return converter.convertToFiat(stakingBalance, currencyId: currencyId)
-        }()
-
-        return .init(crypto: stakingBalance, fiat: fiatBalance)
-    }
-
-    private var stakedWithPendingBalance: Balance {
-        let stakingBalance = stakingManager?.balances?.stakes().sum()
-        let fiatBalance: Decimal? = {
-            guard let stakingBalance, let currencyId = tokenItem.currencyId else {
-                return nil
-            }
-
-            return converter.convertToFiat(stakingBalance, currencyId: currencyId)
-        }()
-
-        return .init(crypto: stakingBalance, fiat: fiatBalance)
-    }
-
-    private func formatted(_ balance: Balance) -> BalanceFormatted {
-        let cryptoFormatted = formatter.formatCryptoBalance(balance.crypto, currencyCode: tokenItem.currencySymbol)
-        let fiatFormatted = formatter.formatFiatBalance(balance.fiat)
-
-        return .init(crypto: cryptoFormatted, fiat: fiatFormatted)
-    }
+//    private var stakedBalance: Balance {
+//        let stakingBalance = stakingManager?.balances?.blocked().sum()
+//        let fiatBalance: Decimal? = {
+//            guard let stakingBalance, let currencyId = tokenItem.currencyId else {
+//                return nil
+//            }
+//
+//            return converter.convertToFiat(stakingBalance, currencyId: currencyId)
+//        }()
+//
+//        return .init(crypto: stakingBalance, fiat: fiatBalance)
+//    }
+//
+//    private var stakedWithPendingBalance: Balance {
+//        let stakingBalance = stakingManager?.balances?.stakes().sum()
+//        let fiatBalance: Decimal? = {
+//            guard let stakingBalance, let currencyId = tokenItem.currencyId else {
+//                return nil
+//            }
+//
+//            return converter.convertToFiat(stakingBalance, currencyId: currencyId)
+//        }()
+//
+//        return .init(crypto: stakingBalance, fiat: fiatBalance)
+//    }
+//
+//    private func formatted(_ balance: Balance) -> BalanceFormatted {
+//        let cryptoFormatted = formatter.formatCryptoBalance(balance.crypto, currencyCode: tokenItem.currencySymbol)
+//        let fiatFormatted = formatter.formatFiatBalance(balance.fiat)
+//
+//        return .init(crypto: cryptoFormatted, fiat: fiatFormatted)
+//    }
 }
 
 extension WalletModel {
