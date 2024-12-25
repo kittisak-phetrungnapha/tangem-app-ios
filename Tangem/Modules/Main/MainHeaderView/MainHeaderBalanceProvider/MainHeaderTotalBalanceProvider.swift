@@ -8,9 +8,10 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 protocol MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadingValue<AttributedString>, Never> { get }
+    var balanceProvider: AnyPublisher<LoadingResult<AttributedString?, Never>, Never> { get }
 }
 
 class CommonMainHeaderBalanceProvider {
@@ -18,7 +19,7 @@ class CommonMainHeaderBalanceProvider {
     private let userWalletStateInfoProvider: MainHeaderUserWalletStateInfoProvider
     private let mainBalanceFormatter: MainHeaderBalanceFormatter
 
-    private let headerBalanceSubject = CurrentValueSubject<LoadingValue<AttributedString>, Never>(.loading)
+    private let headerBalanceSubject = CurrentValueSubject<LoadingResult<AttributedString?, Never>, Never>(.loading)
     private var balanceSubscription: AnyCancellable?
 
     init(
@@ -34,7 +35,8 @@ class CommonMainHeaderBalanceProvider {
     }
 
     private func bind() {
-        balanceSubscription = totalBalanceProvider.totalBalancePublisher
+        balanceSubscription = totalBalanceProvider
+            .totalBalancePublisher
             .sink(receiveValue: { [weak self] newValue in
                 guard let self else {
                     return
@@ -47,7 +49,7 @@ class CommonMainHeaderBalanceProvider {
                 switch newValue {
                 case .empty, .failed(.none):
                     // We didn't show any error in header, so no need to specify error
-                    headerBalanceSubject.send(.failedToLoad(error: ""))
+                    headerBalanceSubject.send(.success(.none))
                 case .loading:
                     headerBalanceSubject.send(.loading)
                 case .loaded(let balance, let currencyCode):
@@ -57,18 +59,20 @@ class CommonMainHeaderBalanceProvider {
                     }
 
                     let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: balanceToFormat, currencyCode: currencyCode)
-                    headerBalanceSubject.send(.loaded(formattedForMainBalance))
+                    headerBalanceSubject.send(.success(formattedForMainBalance))
                 case .failed(.some(let cached)):
                     // TODO: Check it
                     let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: cached.balance, currencyCode: "USD")
-                    headerBalanceSubject.send(.loaded(formattedForMainBalance))
+                    headerBalanceSubject.send(.success(formattedForMainBalance))
                 }
             })
     }
 }
 
+// MARK: - MainHeaderBalanceProvider
+
 extension CommonMainHeaderBalanceProvider: MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadingValue<AttributedString>, Never> {
+    var balanceProvider: AnyPublisher<LoadingResult<AttributedString?, Never>, Never> {
         headerBalanceSubject.eraseToAnyPublisher()
     }
 }

@@ -57,7 +57,6 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
     private weak var contextActionsProvider: MarketsPortfolioContextActionsProvider?
     private weak var contextActionsDelegate: MarketsPortfolioContextActionsDelegate?
 
-    private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
 
     // MARK: - Init
@@ -159,35 +158,29 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         ) ?? []
     }
 
-    private func setupBalance(_ type: TokenBalanceType) {
+    private func setupBalance(_ type: FormattedTokenBalanceType) {
         switch type {
         case .loading:
             break
-        case .failure(let cached): // TODO: add cached on Markets (?)
-            let formatted = balanceFormatter.formatCryptoBalance(cached?.balance, currencyCode: tokenItem.currencySymbol)
+        case .failure(.cache(let cached)): // TODO: add cached on Markets (?)
+            balanceCrypto = .loaded(text: cached.balance)
+        case .failure(.empty(let formatted)):
             balanceCrypto = .loaded(text: formatted)
-        case .loaded(let value):
-            let formatted = balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
-            balanceCrypto = .loaded(text: formatted)
-        case .empty:
-            let formatted = balanceFormatter.formatCryptoBalance(.none, currencyCode: tokenItem.currencySymbol)
-            balanceCrypto = .loaded(text: formatted)
+        case .loaded(let balance):
+            balanceCrypto = .loaded(text: balance)
         }
     }
 
-    private func setupFiatBalance(_ type: TokenBalanceType) {
+    private func setupFiatBalance(_ type: FormattedTokenBalanceType) {
         switch type {
         case .loading:
             break
-        case .failure(let cached): // TODO: add cached Markets (?)
-            let formatted = balanceFormatter.formatFiatBalance(cached?.balance)
+        case .failure(.cache(let cached)): // TODO: add cached on Markets (?)
+            balanceFiat = .loaded(text: cached.balance)
+        case .failure(.empty(let formatted)):
             balanceFiat = .loaded(text: formatted)
-        case .loaded(let value):
-            let formatted = balanceFormatter.formatFiatBalance(value)
-            balanceFiat = .loaded(text: formatted)
-        case .empty:
-            let formatted = balanceFormatter.formatFiatBalance(.none)
-            balanceFiat = .loaded(text: formatted)
+        case .loaded(let balance):
+            balanceFiat = .loaded(text: balance)
         }
     }
 }

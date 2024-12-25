@@ -7,12 +7,10 @@
 //
 
 struct ActionButtonsTokenSelectorItemBuilder: TokenSelectorItemBuilder {
-    private let balanceFormatter = BalanceFormatter()
-
     func map(from walletModel: WalletModel, isDisabled: Bool) -> ActionButtonsTokenSelectorItem {
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
-        let balanceProvider = AvailableBalanceProvider(walletModel: walletModel)
-        let fiatBalanceProvider = FiatBalanceProvider(walletModel: walletModel, cryptoBalanceProvider: balanceProvider)
+        let balance = walletModel.combineBalanceProvider.formattedBalanceType.value
+        let fiatBalance = walletModel.combineFiatBalanceProvider.formattedBalanceType.value
 
         // TODO:
         // Use logic from `DefaultTokenItemInfoProvider` or DefaultTokenItemInfoProvider
@@ -22,8 +20,8 @@ struct ActionButtonsTokenSelectorItemBuilder: TokenSelectorItemBuilder {
             tokenIconInfo: tokenIconInfo,
             name: walletModel.tokenItem.name,
             symbol: walletModel.tokenItem.currencySymbol,
-            balance: balanceFormatter.formatFiatBalance(balanceProvider.balanceType.value),
-            fiatBalance: balanceFormatter.formatFiatBalance(fiatBalanceProvider.balanceType.value),
+            balance: balance,
+            fiatBalance: fiatBalance,
             isDisabled: isDisabled,
             isLoading: walletModel.state.isLoading,
             walletModel: walletModel

@@ -76,14 +76,14 @@ final class MainHeaderViewModel: ObservableObject {
                 switch newValue {
                 case .loading:
                     isLoadingFiatBalance = true
-                case .loaded(let balance):
+                case .success(.some(let balance)):
+                    AppLog.shared.debug("Set total balance to \(balance)")
                     isLoadingFiatBalance = false
-
                     self.balance = balance
-                case .failedToLoad(let error):
-                    AppLog.shared.debug("Failed to load total balance. Reason: \(error)")
-                    isLoadingFiatBalance = false
 
+                case .success(.none):
+                    AppLog.shared.debug("Set total balance to empty string")
+                    isLoadingFiatBalance = false
                     balance = .init(BalanceFormatter.defaultEmptyBalanceString)
                 }
             }

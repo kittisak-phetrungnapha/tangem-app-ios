@@ -32,7 +32,7 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
     var quote: TokenQuote? { walletModel.quote }
 
     var isZeroBalanceValue: Bool {
-        balanceProvider.balanceType.value ?? 0 > 0
+        walletModel.balanceState != .positive
     }
 
     var tokenItemState: TokenItemViewState {
@@ -48,12 +48,12 @@ extension DefaultTokenItemInfoProvider: TokenItemInfoProvider {
             .eraseToAnyPublisher()
     }
 
-    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
-        balanceProvider.balanceTypePublisher
+    var balanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
+        balanceProvider.formattedBalanceTypePublisher
     }
 
-    var fiatBalanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
-        fiatBalanceProvider.balanceTypePublisher
+    var fiatBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
+        fiatBalanceProvider.formattedBalanceTypePublisher
     }
 
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { walletModel.actionsUpdatePublisher }

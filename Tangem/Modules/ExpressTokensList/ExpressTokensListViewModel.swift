@@ -186,16 +186,16 @@ private extension ExpressTokensListViewModel {
 
     func mapToExpressTokenItemViewModel(walletModel: WalletModel, isDisable: Bool) -> ExpressTokenItemViewModel {
         let tokenIconInfo = TokenIconInfoBuilder().build(from: walletModel.tokenItem, isCustom: walletModel.isCustom)
-        let balanceProvider = AvailableBalanceProvider(walletModel: walletModel)
-        let fiatBalanceProvider = FiatBalanceProvider(walletModel: walletModel, cryptoBalanceProvider: balanceProvider)
+        let balance = walletModel.availableBalanceProvider.formattedBalanceType.value
+        let fiatBalance = walletModel.availableFiatBalanceProvider.formattedBalanceType.value
 
         return ExpressTokenItemViewModel(
             id: walletModel.id,
             tokenIconInfo: tokenIconInfo,
             name: walletModel.name,
             symbol: walletModel.tokenItem.currencySymbol,
-            balance: balanceFormatter.formatFiatBalance(balanceProvider.balanceType.value),
-            fiatBalance: balanceFormatter.formatFiatBalance(fiatBalanceProvider.balanceType.value),
+            balance: balance,
+            fiatBalance: fiatBalance,
             isDisable: isDisable,
             itemDidTap: { [weak self] in
                 self?.userDidTap(on: walletModel)

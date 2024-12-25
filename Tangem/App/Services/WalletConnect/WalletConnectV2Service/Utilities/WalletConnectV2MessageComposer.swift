@@ -37,8 +37,6 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
     func makeMessage(for transaction: Transaction, walletModel: WalletModel, dApp: WalletConnectSavedSession.DAppInfo) -> String {
         let totalAmount = transaction.amount + transaction.fee.amount
         let balance = walletModel.wallet.amounts[.coin] ?? .zeroCoin(for: walletModel.wallet.blockchain)
-        let crypto = AvailableBalanceProvider(walletModel: walletModel).balanceType.value
-        let formattedCryptoBalance = BalanceFormatter().formatCryptoBalance(crypto, currencyCode: walletModel.tokenItem.currencySymbol)
 
         let message: String = {
             var m = ""
@@ -48,7 +46,7 @@ struct WalletConnectV2MessageComposer: WalletConnectV2MessageComposable {
                 transaction.amount.description,
                 transaction.fee.amount.description,
                 totalAmount.description,
-                formattedCryptoBalance
+                walletModel.availableBalanceProvider.formattedBalanceType.value
             )
             if balance < totalAmount {
                 m += "\n\n" + Localization.walletConnectCreateTxNotEnoughFunds

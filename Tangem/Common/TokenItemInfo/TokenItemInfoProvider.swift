@@ -18,8 +18,8 @@ protocol TokenItemInfoProvider: AnyObject {
 
     var tokenItemState: TokenItemViewState { get }
     var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> { get }
-    var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { get }
-    var fiatBalanceTypePublisher: AnyPublisher<TokenBalanceType, Never> { get }
+    var balanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
+    var fiatBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { get }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { get }
     var isStakedPublisher: AnyPublisher<Bool, Never> { get }
 }

@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import TangemVisa
+import TangemFoundation
 
 class VisaWalletModel {
     @Injected(\.quotesRepository) private var quotesRepository: TokenQuotesRepository
@@ -266,9 +267,9 @@ extension VisaWalletModel: VisaWalletMainHeaderSubtitleDataSource {
 }
 
 extension VisaWalletModel: MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadingValue<AttributedString>, Never> {
+    var balanceProvider: AnyPublisher<LoadingResult<AttributedString?, Never>, Never> {
         stateSubject.combineLatest(balancesSubject)
-            .map { [weak self] state, balances -> LoadingValue<AttributedString> in
+            .map { [weak self] state, balances in
                 guard let self else {
                     return .loading
                 }
@@ -277,13 +278,13 @@ extension VisaWalletModel: MainHeaderBalanceProvider {
                 case .notInitialized, .loading:
                     return .loading
                 case .failedToInitialize(let error):
-                    return .failedToLoad(error: error)
+                    return .success(.none)
                 case .idle:
                     if let balances, let tokenItem {
                         let balanceFormatter = BalanceFormatter()
                         let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
                         let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
-                        return .loaded(formattedForMain)
+                        return .success(formattedForMain)
                     } else {
                         return .loading
                     }

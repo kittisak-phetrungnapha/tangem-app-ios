@@ -169,35 +169,29 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         hasPendingTransactions = infoProvider.hasPendingTransactions
     }
 
-    private func setupBalance(_ type: TokenBalanceType) {
+    private func setupBalance(_ type: FormattedTokenBalanceType) {
         switch type {
         case .loading:
             balanceCrypto = .loading
-        case .failure(let cached): // TODO: add cached
-            let formatted = balanceFormatter.formatCryptoBalance(cached?.balance, currencyCode: tokenItem.currencySymbol)
+        case .failure(.cache(let cached)): // TODO: add cached
+            balanceCrypto = .loaded(text: cached.balance)
+        case .failure(.empty(let formatted)):
             balanceCrypto = .loaded(text: formatted)
-        case .loaded(let value):
-            let formatted = balanceFormatter.formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
-            balanceCrypto = .loaded(text: formatted)
-        case .empty:
-            let formatted = balanceFormatter.formatCryptoBalance(.none, currencyCode: tokenItem.currencySymbol)
-            balanceCrypto = .loaded(text: formatted)
+        case .loaded(let balance):
+            balanceCrypto = .loaded(text: balance)
         }
     }
 
-    private func setupFiatBalance(_ type: TokenBalanceType) {
+    private func setupFiatBalance(_ type: FormattedTokenBalanceType) {
         switch type {
         case .loading:
             balanceFiat = .loading
-        case .failure(let cached): // TODO: add cached
-            let formatted = balanceFormatter.formatFiatBalance(cached?.balance)
+        case .failure(.cache(let cached)): // TODO: add cached
+            balanceFiat = .loaded(text: cached.balance)
+        case .failure(.empty(let formatted)):
             balanceFiat = .loaded(text: formatted)
-        case .loaded(let value):
-            let formatted = balanceFormatter.formatFiatBalance(value)
-            balanceFiat = .loaded(text: formatted)
-        case .empty:
-            let formatted = balanceFormatter.formatFiatBalance(.none)
-            balanceFiat = .loaded(text: formatted)
+        case .loaded(let balance):
+            balanceFiat = .loaded(text: balance)
         }
     }
 

@@ -61,6 +61,7 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     private func setupBalance(type: FormattedTokenBalanceType) {
         switch type {
         case .failure(.empty):
+            isLoadingSubject.send(false)
             formatErrorMessage()
         case .loading(.cache(let cached)):
             break // TODO: Cached is loading (?)

@@ -58,8 +58,7 @@ final class ExpressCurrencyViewModel: ObservableObject, Identifiable {
             tokenIconState = .icon(TokenIconInfoBuilder().build(from: wallet.tokenItem, isCustom: wallet.isCustom))
             symbolState = .loaded(text: wallet.tokenItem.currencySymbol)
 
-            let provider = AvailableBalanceProvider(walletModel: wallet)
-            walletDidChangeSubscription = provider.balanceTypePublisher.sink { [weak self] state in
+            walletDidChangeSubscription = wallet.availableBalanceProvider.balanceTypePublisher.sink { [weak self] state in
                 switch state {
                 case .loading:
                     self?.balanceState = .loading

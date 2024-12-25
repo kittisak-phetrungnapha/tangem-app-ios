@@ -28,8 +28,7 @@ extension WalletModel: ExpressWallet {
     }
 
     func getBalance() throws -> Decimal {
-        let provider = AvailableBalanceProvider(walletModel: self)
-        guard let balanceValue = provider.balanceType.value else {
+        guard let balanceValue = availableBalanceProvider.balanceType.value else {
             throw ExpressManagerError.amountNotFound
         }
 

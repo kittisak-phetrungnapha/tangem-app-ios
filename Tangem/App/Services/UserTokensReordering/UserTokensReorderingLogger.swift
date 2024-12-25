@@ -44,21 +44,15 @@ struct UserTokensReorderingLogger {
         for item: StoredUserTokenList.Entry,
         walletModelsKeyedByIds: [WalletModel.ID: WalletModel]
     ) -> String {
-        let objectDescription = "Token: \(item.name)"
         let walletModel = walletModelsKeyedByIds[item.walletModelId]
-        let balances: (balanceValue: Decimal?, fiatValue: Decimal?)? = walletModel.map { walletModel in
-            let balanceProvider = AvailableBalanceProvider(walletModel: walletModel)
-            let fiatBalanceProvider = FiatBalanceProvider(walletModel: walletModel, cryptoBalanceProvider: balanceProvider)
-
-            return (balanceValue: balanceProvider.balanceType.value, fiatValue: fiatBalanceProvider.balanceType.value)
-        }
+        let objectDescription = "Token: \(item.name)"
 
         return ObjectDescriptionFormatter.format(
             objectDescription: objectDescription,
             userInfo: [
                 "state": description(for: walletModel?.state),
-                "fiatValue": description(for: balances?.fiatValue),
-                "balanceValue": description(for: balances?.balanceValue),
+                "fiatValue": description(for: walletModel?.combineFiatBalanceProvider.balanceType.value),
+                "balanceValue": description(for: walletModel?.combineBalanceProvider.balanceType.value),
                 "canUseQuotes": description(for: walletModel?.canUseQuotes),
                 "isCustom": description(for: walletModel?.isCustom),
             ]
