@@ -18,7 +18,7 @@ class DefaultTokenItemInfoProvider {
         self.walletModel = walletModel
 
         balanceProvider = walletModel.combineBalanceProvider
-        fiatBalanceProvider = walletModel.totalFiatBalanceProvider
+        fiatBalanceProvider = walletModel.combineFiatBalanceProvider
     }
 }
 

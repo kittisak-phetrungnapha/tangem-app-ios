@@ -56,7 +56,7 @@ extension WalletModel {
         FiatBalanceProvider(walletModel: self, cryptoBalanceProvider: stakingBalanceProvider)
     }
 
-    var totalFiatBalanceProvider: TokenBalanceProvider {
+    var combineFiatBalanceProvider: TokenBalanceProvider {
         FiatBalanceProvider(walletModel: self, cryptoBalanceProvider: combineBalanceProvider)
     }
 }

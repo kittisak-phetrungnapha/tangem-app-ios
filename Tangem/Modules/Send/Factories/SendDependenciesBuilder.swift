@@ -80,11 +80,12 @@ struct SendDependenciesBuilder {
         let balanceFormatted: (crypto: String, fiat: String)
         switch actionType {
         case .unstake:
-            let cryptoFormatted = walletModel.formatter.formatCryptoBalance(
+            let formatter = BalanceFormatter()
+            let cryptoFormatted = formatter.formatCryptoBalance(
                 amount?.crypto,
                 currencyCode: walletModel.tokenItem.currencySymbol
             )
-            let fiatFormatted = walletModel.formatter.formatFiatBalance(amount?.fiat)
+            let fiatFormatted = formatter.formatFiatBalance(amount?.fiat)
             balanceFormatted = (crypto: cryptoFormatted, fiat: fiatFormatted)
         default:
             balanceFormatted = (

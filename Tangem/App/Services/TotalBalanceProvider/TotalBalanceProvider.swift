@@ -90,14 +90,17 @@ private extension TotalBalanceProvider {
             }
     }
 
-    // Listen any wallet models count / app's currency code change / or has entries without derivation
+    // Listen changes:
+    // - Wallet models count
+    // - App's currency code change
+    // - Entries without derivation count
     func contextDidChange(walletModels: [WalletModel], currencyCode: String, hasEntriesWithoutDerivation: Bool) {
         // Clear previous
         updateSubscription = nil
 
         trackTokenBalanceLoaded(walletModels: walletModels)
 
-        let providers = walletModels.map { $0.totalFiatBalanceProvider }
+        let providers = walletModels.map { $0.combineFiatBalanceProvider }
 
         if !providers.isEmpty {
             // Setup updating listener
@@ -221,6 +224,26 @@ private extension TotalBalanceProvider {
         }
     }
 
+    func cachedBalance(balances: [TokenBalanceType]) -> TokenBalanceType.Cached? {
+        let cachedBalances = balances.compactMap { balanceType in
+            switch balanceType {
+            case .loading(.some(let cached)), .failure(.some(let cached)):
+                return cached
+            default:
+                return nil
+            }
+        }
+
+        // All tokens have the cached balance
+        guard balances.count == cachedBalances.count,
+              let date = cachedBalances.first?.date else {
+            return nil
+        }
+
+        let cachedBalance = cachedBalances.reduce(0) { $0 + $1.balance }
+        return .init(balance: cachedBalance, date: date)
+    }
+
     func loadedBalance(balances: [TokenBalanceType]) -> Decimal? {
         let loadedBalance = balances.compactMap { balance in
             switch balance {
@@ -237,29 +260,6 @@ private extension TotalBalanceProvider {
         }
 
         return loadedBalance.reduce(0, +)
-    }
-
-    func cachedBalance(balances: [TokenBalanceType]) -> TokenBalanceType.Cached? {
-        //        var balance: Decimal? = nil
-        //        var allHasCached: Bool = false
-        //        var date: Date?
-
-        let cachedBalance = balances.compactMap { balanceType in
-            switch balanceType {
-            case .loading(.some(let cached)), .failure(.some(let cached)):
-                return cached
-            default:
-                return nil
-            }
-        }
-
-        // All has cached balances
-        guard balances.count == cachedBalance.count,
-              let date = cachedBalance.first?.date else {
-            return nil
-        }
-
-        return .init(balance: cachedBalance.reduce(0) { $0 + $1.balance }, date: date)
     }
 
 //        balance = cachedBalance.reduce(0, { $0 + $1.balance })
@@ -418,27 +418,6 @@ private extension TotalBalanceProvider {
         }
 
         return .noRate
-    }
-}
-
-enum TotalBalanceState: Hashable {
-    case empty
-    case loading(cached: TokenBalanceType.Cached?)
-    case failed(cached: TokenBalanceType.Cached?)
-    case loaded(balance: Decimal, currencyCode: String)
-
-    var isLoading: Bool {
-        switch self {
-        case .loading: true
-        default: false
-        }
-    }
-
-    var balance: Decimal? {
-        switch self {
-        case .loaded(let balance, _): balance
-        default: nil
-        }
     }
 }
 

@@ -149,7 +149,7 @@ struct OrganizeTokensListFactory {
     }
 
     private func fiatBalance(for walletModel: WalletModel) -> LoadableTextView.State {
-        switch walletModel.totalFiatBalanceProvider.formattedBalanceType {
+        switch walletModel.combineFiatBalanceProvider.formattedBalanceType {
         case .failure: .noData
         case .loading: .loading
         case .loaded(let value): .loaded(text: value)

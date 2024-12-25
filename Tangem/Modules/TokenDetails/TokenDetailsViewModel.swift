@@ -341,7 +341,7 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
 
     var totalFiatBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
         walletModel
-            .totalFiatBalanceProvider
+            .combineFiatBalanceProvider
             .formattedBalanceTypePublisher
             .map { balanceType in
                 switch balanceType {

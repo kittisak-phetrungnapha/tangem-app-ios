@@ -30,7 +30,7 @@ struct CommonMainHeaderProviderFactory: MainHeaderProviderFactory {
 
         return SingleWalletMainHeaderSubtitleProvider(
             isUserWalletLocked: isUserWalletLocked,
-            walletModel: userWalletModel.walletModelsManager.walletModels.first
+            balanceProvider: userWalletModel.walletModelsManager.walletModels.first.map { $0.combineBalanceProvider }
         )
     }
 }

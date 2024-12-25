@@ -18,7 +18,6 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
     private let subject: CurrentValueSubject<MainHeaderSubtitleInfo, Never> = .init(.empty)
     private let isLoadingSubject: CurrentValueSubject<Bool, Never>
     private let isUserWalletLocked: Bool
-    private let tokenItem: TokenItem?
     private let balanceProvider: TokenBalanceProvider?
 
     private var stateUpdateSubscription: AnyCancellable?
@@ -33,11 +32,10 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
 
     var containsSensitiveInfo: Bool { true }
 
-    init(isUserWalletLocked: Bool, walletModel: WalletModel?) {
+    init(isUserWalletLocked: Bool, balanceProvider: TokenBalanceProvider?) {
         self.isUserWalletLocked = isUserWalletLocked
+        self.balanceProvider = balanceProvider
 
-        tokenItem = walletModel?.tokenItem
-        balanceProvider = walletModel.map { $0.combineBalanceProvider }
         isLoadingSubject = .init(!isUserWalletLocked)
 
         initialSetup()
@@ -53,31 +51,26 @@ class SingleWalletMainHeaderSubtitleProvider: MainHeaderSubtitleProvider {
 
     private func bind() {
         stateUpdateSubscription = balanceProvider?
-            .balanceTypePublisher
+            .formattedBalanceTypePublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] type in
                 self?.setupBalance(type: type)
             })
     }
 
-    private func setupBalance(type: TokenBalanceType) {
-        isLoadingSubject.send(false)
-
+    private func setupBalance(type: FormattedTokenBalanceType) {
         switch type {
-        case .empty, .failure(.none):
+        case .failure(.empty):
             formatErrorMessage()
-        case .loading(let decimal):
-            break
-        case .failure(.some(let cached)):
+        case .loading(.cache(let cached)):
+            break // TODO: Cached is loading (?)
+        case .failure(.cache(let cached)):
             break // TODO: Cached (?)
-        case .loaded(let value):
-            guard let tokenItem else {
-                formatErrorMessage()
-                return
-            }
-
-            let formatted = BalanceFormatter().formatCryptoBalance(value, currencyCode: tokenItem.currencySymbol)
-            formatBalanceMessage(balance: formatted)
+        case .loaded(let balance):
+            isLoadingSubject.send(false)
+            formatBalanceMessage(balance: balance)
+        case .loading(.empty):
+            break
         }
     }
 
