@@ -210,9 +210,9 @@ final class HederaNetworkService {
 
     private static func mapTokenBalances(
         _ tokenBalances: [HederaNetworkResult.AccountTokensBalance.Token]
-    ) -> [HederaAccountBalance.TokenBalanceType] {
+    ) -> [HederaAccountBalance.TokenBalance] {
         return tokenBalances.map { tokenBalance in
-            return HederaAccountBalance.TokenBalanceType(
+            return HederaAccountBalance.TokenBalance(
                 contractAddress: tokenBalance.tokenId,
                 balance: tokenBalance.balance,
                 decimalCount: tokenBalance.decimals
