@@ -17,6 +17,24 @@ enum BalanceState {
 }
 
 extension WalletModel {
+    var availableBalanceProvider: TokenBalanceProvider {
+        AvailableBalanceProvider(walletModel: self)
+    }
+
+    var totalBalanceProvider: TokenBalanceProvider {
+        TotalTokenBalanceProvider(walletModel: self)
+    }
+
+    var availableFiatBalanceProvider: TokenBalanceProvider {
+        FiatBalanceProvider(walletModel: self, cryptoBalanceProvider: availableBalanceProvider)
+    }
+
+    var totalFiatBalanceProvider: TokenBalanceProvider {
+        FiatBalanceProvider(walletModel: self, cryptoBalanceProvider: totalBalanceProvider)
+    }
+}
+
+extension WalletModel {
 //    @available(*, deprecated, message: "Use AvailableBalanceProvider")
 //    var balanceValue: Decimal? {
 //        AvailableBalanceProvider(walletModel: self).balanceType.value
@@ -38,81 +56,81 @@ extension WalletModel {
     }
 
     /// availableBalanceFormatted.fiat
-    @available(*, deprecated, message: "Use AvailableBalanceProvider")
-    var fiatBalance: String {
-        availableBalanceFormatted.fiat
-    }
+//    @available(*, deprecated, message: "Use AvailableBalanceProvider")
+//    var fiatBalance: String {
+//        availableBalanceFormatted.fiat
+//    }
 
     /// availableBalance.fiat
-    @available(*, deprecated, message: "Use AvailableBalanceProvider")
-    var fiatValue: Decimal? {
-        availableBalance.fiat
-    }
+//    @available(*, deprecated, message: "Use AvailableBalanceProvider")
+//    var fiatValue: Decimal? {
+//        availableBalance.fiat
+//    }
 
-    var isSuccessfullyLoaded: Bool {
-        let isStakingSuccessfullyLoaded = stakingManager?.state.isSuccessfullyLoaded ?? true
-        return state.isSuccessfullyLoaded && isStakingSuccessfullyLoaded
-    }
+//    var isSuccessfullyLoaded: Bool {
+//        let isStakingSuccessfullyLoaded = stakingManager?.state.isSuccessfullyLoaded ?? true
+//        return state.isSuccessfullyLoaded && isStakingSuccessfullyLoaded
+//    }
 
-    var isLoading: Bool {
-        let isStakingLoading = stakingManager?.state.isLoading ?? false
-        return state.isLoading || isStakingLoading
-    }
+//    var isLoading: Bool {
+//        let isStakingLoading = stakingManager?.state.isLoading ?? false
+//        return state.isLoading || isStakingLoading
+//    }
 
-    var totalBalance: Balance {
-        let cryptoBalance: Decimal? = {
-            switch (availableBalance.crypto, stakedBalance.crypto) {
-            case (.none, _):
-                return nil
-            case (.some(let available), .none):
-                // staking unsupported
-                guard let stakingManager else {
-                    return available
-                }
-
-                // no staked balance
-                if stakingManager.state.isSuccessfullyLoaded {
-                    return available
-                }
-
-                // staking error
-                return nil
-
-            case (.some(let available), .some(let blocked)):
-                return available + blocked
-            }
-        }()
-
-        let fiatBalance: Decimal? = {
-            guard let cryptoBalance, let currencyId = tokenItem.currencyId else {
-                return nil
-            }
-
-            return converter.convertToFiat(cryptoBalance, currencyId: currencyId)
-        }()
-
-        return .init(crypto: cryptoBalance, fiat: fiatBalance)
-    }
-
-    var availableBalance: Balance {
-        let cryptoBalance: Decimal? = {
-            if state.isNoAccount {
-                return 0
-            }
-
-            return wallet.amounts[amountType]?.value
-        }()
-
-        let fiatBalance: Decimal? = {
-            guard let cryptoBalance, let currencyId = tokenItem.currencyId else {
-                return nil
-            }
-
-            return converter.convertToFiat(cryptoBalance, currencyId: currencyId)
-        }()
-
-        return .init(crypto: cryptoBalance, fiat: fiatBalance)
-    }
+//    var totalBalance: Balance {
+//        let cryptoBalance: Decimal? = {
+//            switch (availableBalance.crypto, stakedBalance.crypto) {
+//            case (.none, _):
+//                return nil
+//            case (.some(let available), .none):
+//                // staking unsupported
+//                guard let stakingManager else {
+//                    return available
+//                }
+//
+//                // no staked balance
+//                if stakingManager.state.isSuccessfullyLoaded {
+//                    return available
+//                }
+//
+//                // staking error
+//                return nil
+//
+//            case (.some(let available), .some(let blocked)):
+//                return available + blocked
+//            }
+//        }()
+//
+//        let fiatBalance: Decimal? = {
+//            guard let cryptoBalance, let currencyId = tokenItem.currencyId else {
+//                return nil
+//            }
+//
+//            return converter.convertToFiat(cryptoBalance, currencyId: currencyId)
+//        }()
+//
+//        return .init(crypto: cryptoBalance, fiat: fiatBalance)
+//    }
+//
+//    var availableBalance: Balance {
+//        let cryptoBalance: Decimal? = {
+//            if state.isNoAccount {
+//                return 0
+//            }
+//
+//            return wallet.amounts[amountType]?.value
+//        }()
+//
+//        let fiatBalance: Decimal? = {
+//            guard let cryptoBalance, let currencyId = tokenItem.currencyId else {
+//                return nil
+//            }
+//
+//            return converter.convertToFiat(cryptoBalance, currencyId: currencyId)
+//        }()
+//
+//        return .init(crypto: cryptoBalance, fiat: fiatBalance)
+//    }
 
     var stakedRewards: Balance {
         let rewardsToClaim = stakingManager?.balances?.rewards().sum()
@@ -127,13 +145,13 @@ extension WalletModel {
         return .init(crypto: rewardsToClaim, fiat: fiatBalance)
     }
 
-    var allBalanceFormatted: BalanceFormatted {
-        formatted(totalBalance)
-    }
-
-    var availableBalanceFormatted: BalanceFormatted {
-        formatted(availableBalance)
-    }
+//    var allBalanceFormatted: BalanceFormatted {
+//        formatted(totalBalance)
+//    }
+//
+//    var availableBalanceFormatted: BalanceFormatted {
+//        formatted(availableBalance)
+//    }
 
     var stakedWithPendingBalanceFormatted: BalanceFormatted {
         formatted(stakedWithPendingBalance)

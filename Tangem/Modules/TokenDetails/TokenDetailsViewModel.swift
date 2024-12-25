@@ -18,15 +18,17 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
 
-    private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
+    private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
+        buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
+        balanceProvider: self
+    )
+
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
 
     private weak var coordinator: TokenDetailsRoutable?
     private let bannerNotificationManager: NotificationManager?
     private let xpubGenerator: XPUBGenerator?
-
-    private let balances = CurrentValueSubject<LoadingValue<BalanceWithButtonsViewModel.Balances>, Never>(.loading)
 
     private var bag = Set<AnyCancellable>()
 
@@ -72,11 +74,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         )
         notificationManager.setupManager(with: self)
         bannerNotificationManager?.setupManager(with: self)
-
-        balanceWithButtonsModel = .init(
-            balancesPublisher: balances.eraseToAnyPublisher(),
-            buttonsPublisher: $actionButtons.eraseToAnyPublisher()
-        )
 
         prepareSelf()
     }
@@ -222,24 +219,11 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
-        updateBalance(walletModelState: walletModel.state)
         tokenNotificationInputs = notificationManager.notificationInputs
         bind()
     }
 
     private func bind() {
-        Publishers.CombineLatest(
-            walletModel.walletDidChangePublisher,
-            walletModel.stakingManagerStatePublisher
-        )
-        .filter { $1 != .loading }
-        .receive(on: DispatchQueue.main)
-        .receiveValue { [weak self] newState, _ in
-            AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
-            self?.updateBalance(walletModelState: newState)
-        }
-        .store(in: &bag)
-
         bannerNotificationManager?.notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
@@ -253,20 +237,6 @@ private extension TokenDetailsViewModel {
                 self?.updateStaking(state: state)
             }
             .store(in: &bag)
-    }
-
-    private func updateBalance(walletModelState: WalletModel.State) {
-        switch walletModelState {
-        case .created, .loading:
-            balances.send(.loading)
-        case .loaded, .noAccount:
-            balances.send(.loaded(.init(all: walletModel.allBalanceFormatted, available: walletModel.availableBalanceFormatted)))
-        case .failed(let message):
-            balances.send(.failedToLoad(error: message))
-        case .noDerivation:
-            // User can't reach this screen without derived keys
-            balances.send(.failedToLoad(error: CommonError.notImplemented))
-        }
     }
 
     private func updateStaking(state: StakingManagerState) {
@@ -328,5 +298,65 @@ extension TokenDetailsViewModel: SingleTokenNotificationManagerInteractionDelega
     ) {
         let alertBuilder = SingleTokenAlertBuilder()
         alert = alertBuilder.fulfillAssetRequirementsDiscardedAlert(confirmationAction: confirmationAction)
+    }
+}
+
+// MARK: - SingleTokenNotificationManagerInteractionDelegate protocol conformance
+
+extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
+    var totalCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        walletModel
+            .totalBalanceProvider
+            .formattedBalanceTypePublisher
+            .map { balanceType in
+                switch balanceType {
+                case .loading: .loading
+                case .failure(let cached): .success(cached.value)
+                case .loaded(let value): .success(value)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var totalFiatBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        walletModel
+            .totalFiatBalanceProvider
+            .formattedBalanceTypePublisher
+            .map { balanceType in
+                switch balanceType {
+                case .loading: .loading
+                case .failure(let cached): .success(cached.value)
+                case .loaded(let value): .success(value)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var availableCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        walletModel
+            .availableBalanceProvider
+            .formattedBalanceTypePublisher
+            .map { balanceType in
+                switch balanceType {
+                case .loading: .loading
+                case .failure(let cached): .success(cached.value)
+                case .loaded(let value): .success(value)
+                }
+            }
+            .eraseToAnyPublisher()
+    }
+
+    var availableFiatBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        walletModel
+            .availableFiatBalanceProvider
+            .formattedBalanceTypePublisher
+            .map { balanceType in
+                switch balanceType {
+                case .loading: .loading
+                case .failure(let cached): .success(cached.value)
+                case .loaded(let value): .success(value)
+                }
+            }
+            .eraseToAnyPublisher()
     }
 }

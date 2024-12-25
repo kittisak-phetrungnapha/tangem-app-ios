@@ -18,7 +18,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
 
     let isUserWalletLocked: Bool
     private let userWalletNamePublisher: AnyPublisher<String, Never>
-    private let totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never>
+    private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
     private let cardImagePublisher: AnyPublisher<CardImageResult, Never>
     private var bag: Set<AnyCancellable> = []
 
@@ -39,7 +39,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
         cardsCount: Int,
         isUserWalletLocked: Bool,
         userWalletNamePublisher: AnyPublisher<String, Never>,
-        totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never>,
+        totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
         cardImagePublisher: AnyPublisher<CardImageResult, Never>,
         tapAction: @escaping () -> Void
     ) {
@@ -81,19 +81,17 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                 switch result {
                 case .loading:
                     viewModel.balanceState = .loading
-                case .loaded(let totalBalance):
-                    guard totalBalance.allTokensBalancesIncluded else {
-                        viewModel.balanceState = .noData
-                        return
-                    }
+                case .empty:
+                    viewModel.balanceState = .noData
+                case .loaded(let balance, _):
+                    let formatted = viewModel.balanceFormatter.formatFiatBalance(balance)
+                    viewModel.balanceState = .loaded(text: formatted)
 
-                    if let balance = totalBalance.balance {
-                        let formatted = viewModel.balanceFormatter.formatFiatBalance(balance)
-                        viewModel.balanceState = .loaded(text: formatted)
-                    } else {
-                        viewModel.balanceState = .noData
-                    }
-                case .failedToLoad:
+                // TODO: Check it
+                case .failed(.some(let cached)):
+                    let formatted = viewModel.balanceFormatter.formatFiatBalance(cached.balance)
+                    viewModel.balanceState = .loaded(text: formatted)
+                case .failed(.none):
                     viewModel.balanceState = .loaded(text: Localization.commonUnreachable)
                 }
             }

@@ -13,6 +13,7 @@ import TangemStaking
 /// Total crypto balance (available+staking)
 struct TotalTokenBalanceProvider {
     private let walletModel: WalletModel
+    private let balanceFormatter = BalanceFormatter()
 
     init(walletModel: WalletModel) {
         self.walletModel = walletModel
@@ -31,9 +32,18 @@ extension TotalTokenBalanceProvider: TokenBalanceProvider {
             walletModel.statePublisher,
             walletModel.stakingManagerStatePublisher
         )
-
         .map { self.mapToAvailableTokenBalance(walletState: $0, stakingState: $1) }
         .eraseToAnyPublisher()
+    }
+
+    var formattedBalanceType: FormattedTokenBalanceType {
+        mapToFormattedTokenBalanceType(type: balanceType)
+    }
+
+    var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
+        balanceTypePublisher
+            .map { self.mapToFormattedTokenBalanceType(type: $0) }
+            .eraseToAnyPublisher()
     }
 }
 
@@ -56,14 +66,14 @@ private extension TotalTokenBalanceProvider {
 
         // One on them have error
         // Then show cached with error
-        case (.failed(let error), _), (_, .loadingError(let error)):
+        case (.failed, _), (_, .loadingError):
             return .failure(nil)
 
         // Both was loaded
         // Then show the sum of both
         case (.loaded(let balance), .staked(let balances)):
             let staked = balances.balances.blocked().sum()
-            return .loaded(balance)
+            return .loaded(balance + staked)
 
         // Token hasn't account
         // Then show the zero of both
@@ -76,7 +86,15 @@ private extension TotalTokenBalanceProvider {
 
         // No balances cases
         case (.created, _), (.noDerivation, _):
-            return .empty
+            return .empty(.noData)
         }
+    }
+
+    func mapToFormattedTokenBalanceType(type: TokenBalanceType) -> FormattedTokenBalanceType {
+        let builder = FormattedTokenBalanceTypeBuilder(format: { value in
+            balanceFormatter.formatCryptoBalance(value, currencyCode: walletModel.tokenItem.currencySymbol)
+        })
+
+        return builder.mapToFormattedTokenBalanceType(type: type)
     }
 }

@@ -80,10 +80,7 @@ struct SendDependenciesBuilder {
         let balanceFormatted: WalletModel.BalanceFormatted
         switch actionType {
         case .unstake:
-            let balance = WalletModel.Balance(
-                crypto: amount?.crypto,
-                fiat: amount?.fiat
-            )
+            let balance = WalletModel.Balance(crypto: amount?.crypto, fiat: amount?.fiat)
             let cryptoFormatted = walletModel.formatter.formatCryptoBalance(
                 balance.crypto,
                 currencyCode: walletModel.tokenItem.currencySymbol
@@ -91,7 +88,10 @@ struct SendDependenciesBuilder {
             let fiatFormatted = walletModel.formatter.formatFiatBalance(balance.fiat)
             balanceFormatted = WalletModel.BalanceFormatted(crypto: cryptoFormatted, fiat: fiatFormatted)
         default:
-            balanceFormatted = walletModel.availableBalanceFormatted
+            balanceFormatted = .init(
+                crypto: walletModel.availableBalanceProvider.formattedBalanceType.value,
+                fiat: walletModel.availableFiatBalanceProvider.formattedBalanceType.value
+            )
         }
         return Localization.commonCryptoFiatFormat(balanceFormatted.crypto, balanceFormatted.fiat)
     }

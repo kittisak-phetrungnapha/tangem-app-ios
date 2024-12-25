@@ -70,7 +70,12 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                        !walletModel.isEmptyIncludingPendingIncomingTxs,
                        walletModel.balanceState == .positive {
                         if let userWalletId = viewModel.userWalletModel?.userWalletId {
-                            Analytics.logTopUpIfNeeded(balance: walletModel.fiatValue ?? 0, for: userWalletId)
+                            let fiatBalanceProvider = FiatBalanceProvider(
+                                walletModel: walletModel,
+                                cryptoBalanceProvider: AvailableBalanceProvider(walletModel: walletModel)
+                            )
+
+                            Analytics.logTopUpIfNeeded(balance: fiatBalanceProvider.balanceType.value ?? 0, for: userWalletId)
                         }
                         viewModel.goToNextStep()
                         viewModel.walletModelUpdateCancellable = nil

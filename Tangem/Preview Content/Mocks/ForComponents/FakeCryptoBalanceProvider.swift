@@ -8,23 +8,21 @@
 
 import Foundation
 import Combine
+import TangemFoundation
 
 class FakeTokenBalanceProvider {
+    typealias BalanceFormatted = (crypto: String, fiat: String)
+
     private let buttons: [FixedSizeButtonWithIconInfo]
     private let delay: TimeInterval
-    private let cryptoBalanceInfo: WalletModel.BalanceFormatted
+    private let cryptoBalanceInfo: BalanceFormatted
 
-    private let valueSubject = CurrentValueSubject<LoadingValue<BalanceWithButtonsViewModel.Balances>, Never>(.loading)
+    private let valueSubject = CurrentValueSubject<LoadingResult<BalanceFormatted?, Never>, Never>(.loading)
     private let buttonsSubject: CurrentValueSubject<[FixedSizeButtonWithIconInfo], Never>
-
-    var balancesPublisher: AnyPublisher<LoadingValue<BalanceWithButtonsViewModel.Balances>, Never> {
-        scheduleSendingValue()
-        return valueSubject.eraseToAnyPublisher()
-    }
 
     var buttonsPublisher: AnyPublisher<[FixedSizeButtonWithIconInfo], Never> { buttonsSubject.eraseToAnyPublisher() }
 
-    init(buttons: [FixedSizeButtonWithIconInfo], delay: TimeInterval, cryptoBalanceInfo: WalletModel.BalanceFormatted) {
+    init(buttons: [FixedSizeButtonWithIconInfo], delay: TimeInterval, cryptoBalanceInfo: BalanceFormatted) {
         self.buttons = buttons
         buttonsSubject = .init(buttons)
         self.delay = delay
@@ -44,10 +42,10 @@ class FakeTokenBalanceProvider {
 
     private func sendInfo() {
         if cryptoBalanceInfo.crypto.contains("-1") {
-            valueSubject.send(.failedToLoad(error: "Failed to load balance. Network unreachable"))
+            valueSubject.send(.success(nil))
             buttonsSubject.send(disabledButtons())
         } else {
-            valueSubject.send(.loaded(.init(all: cryptoBalanceInfo, available: cryptoBalanceInfo)))
+            valueSubject.send(.success(cryptoBalanceInfo))
         }
     }
 
@@ -55,5 +53,31 @@ class FakeTokenBalanceProvider {
         buttons.map { button in
             .init(title: button.title, icon: button.icon, disabled: true, action: button.action)
         }
+    }
+}
+
+extension FakeTokenBalanceProvider: BalanceWithButtonsViewModelBalanceProvider {
+    var totalCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        valueSubject
+            .map { $0.mapValue { $0?.crypto ?? "" } }
+            .eraseToAnyPublisher()
+    }
+
+    var totalFiatBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        valueSubject
+            .map { $0.mapValue { $0?.fiat ?? "" } }
+            .eraseToAnyPublisher()
+    }
+
+    var availableCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        valueSubject
+            .map { $0.mapValue { $0?.crypto ?? "" } }
+            .eraseToAnyPublisher()
+    }
+
+    var availableFiatBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        valueSubject
+            .map { $0.mapValue { $0?.fiat ?? "" } }
+            .eraseToAnyPublisher()
     }
 }

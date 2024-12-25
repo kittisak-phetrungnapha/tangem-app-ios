@@ -14178,9 +14178,10 @@
 			isa = PBXGroup;
 			children = (
 				EF26835F2D1AE4BB0084FD3F /* BalanceProvider.swift */,
-				EF42D76A2D1AF5B70065AFD1 /* AvailableBalanceProvider.swift */,
-				EF42D76C2D1AF6FC0065AFD1 /* TotalTokenBalanceProvider.swift */,
-				EF42D76E2D1B04EA0065AFD1 /* FiatBalanceProvider.swift */,
+				EF42D7722D1C65960065AFD1 /* TokenBalanceType.swift */,
+				EF42D7742D1C65AB0065AFD1 /* FormattedTokenBalanceType.swift */,
+				EF42D7772D1C69430065AFD1 /* FormattedTokenBalanceTypeBuilder.swift */,
+				EF42D7762D1C65B50065AFD1 /* Implementation */,
 			);
 			path = BalanceProvider;
 			sourceTree = "<group>";
@@ -17081,6 +17082,7 @@
 				DC3DCAED2A49C6D900F72554 /* WalletManagersRepository.swift in Sources */,
 				B09BD0022ACEE4F800CAB754 /* NotificationTransitionModifier.swift in Sources */,
 				DCE317B82CC4F7FE0069C641 /* WalletConnectSolanaSignTransactionDTO.swift in Sources */,
+				EF42D7732D1C65960065AFD1 /* TokenBalanceType.swift in Sources */,
 				DA559C532B0265E700F59584 /* SendDestinationTextViewModel.swift in Sources */,
 				B67DC1E62B7C45DD008ACB0E /* UserDefaultsBlockchainDataStorage.swift in Sources */,
 				B0764E482CEB7CBE00361E90 /* VisaOnboardingAccessCodeSetupView.swift in Sources */,
@@ -17490,6 +17492,7 @@
 				DC1FB52E2C5BB5E2008533A2 /* SendCryptoValueFormatter.swift in Sources */,
 				B03478602B0F6C08004FECA0 /* HighPriceImpactCalculator.swift in Sources */,
 				5D51036B27C534CB0025EA55 /* EIP712TypedData.swift in Sources */,
+				EF42D7782D1C69430065AFD1 /* FormattedTokenBalanceTypeBuilder.swift in Sources */,
 				EFEB07C12C7CDFBC00E88352 /* WalletModel+Balance.swift in Sources */,
 				2DFC27932C78E833009B247E /* TokenItemInfoProviderMapper.swift in Sources */,
 				B080DE572BB3F504001A23BD /* APIListProvider.swift in Sources */,
@@ -17841,6 +17844,7 @@
 				2DB6488D2C35885D00DA100D /* WalletSelectorView.swift in Sources */,
 				DA6445262BB17C8100865F7B /* SendDecimalNumberTextFieldPrefixSuffixOptions.swift in Sources */,
 				B0340B9E2C50C7C4008FF6FC /* ForegroundBlinkAnimationModifier.swift in Sources */,
+				EF42D7752D1C65AB0065AFD1 /* FormattedTokenBalanceType.swift in Sources */,
 				B044117F2C64B2DD00EC8C06 /* DefaultAmountNotationFormatter.swift in Sources */,
 				2DC5677C2B0E047700B0244F /* MainBottomSheetHeaderViewModel.swift in Sources */,
 				DABDF4132BDA2D7000CE475D /* AddressTextViewHeightModel.swift in Sources */,

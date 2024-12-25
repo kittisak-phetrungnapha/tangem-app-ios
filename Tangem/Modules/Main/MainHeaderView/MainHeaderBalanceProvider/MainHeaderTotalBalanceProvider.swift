@@ -45,24 +45,23 @@ class CommonMainHeaderBalanceProvider {
                 }
 
                 switch newValue {
+                case .empty, .failed(.none):
+                    // We didn't show any error in header, so no need to specify error
+                    headerBalanceSubject.send(.failedToLoad(error: ""))
                 case .loading:
                     headerBalanceSubject.send(.loading)
-                case .loaded(let balance):
-                    guard balance.allTokensBalancesIncluded else {
-                        // We didn't show any error in header, so no need to specify error
-                        headerBalanceSubject.send(.failedToLoad(error: ""))
-                        return
-                    }
-
-                    var balanceToFormat = balance.balance
-                    if balanceToFormat == nil, userWalletStateInfoProvider.isTokensListEmpty {
+                case .loaded(let balance, let currencyCode):
+                    var balanceToFormat = balance
+                    if userWalletStateInfoProvider.isTokensListEmpty {
                         balanceToFormat = 0
                     }
 
-                    let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: balanceToFormat, currencyCode: balance.currencyCode)
+                    let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: balanceToFormat, currencyCode: currencyCode)
                     headerBalanceSubject.send(.loaded(formattedForMainBalance))
-                case .failedToLoad(let error):
-                    headerBalanceSubject.send(.failedToLoad(error: error))
+                case .failed(.some(let cached)):
+                    // TODO: Check it
+                    let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: cached.balance, currencyCode: "USD")
+                    headerBalanceSubject.send(.loaded(formattedForMainBalance))
                 }
             })
     }

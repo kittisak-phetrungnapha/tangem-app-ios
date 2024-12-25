@@ -9,5 +9,5 @@
 import Combine
 
 protocol TotalBalanceProviding {
-    var totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never> { get }
+    var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> { get }
 }

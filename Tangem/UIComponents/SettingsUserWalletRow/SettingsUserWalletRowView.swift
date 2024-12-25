@@ -105,7 +105,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 3,
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
-                    totalBalancePublisher: .just(output: .loading),
+                    totalBalancePublisher: .just(output: .loading(cached: .none)),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
                     tapAction: {}
                 )
@@ -116,7 +116,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
-                    totalBalancePublisher: .just(output: .failedToLoad(error: CommonError.noData)),
+                    totalBalancePublisher: .just(output: .failed(cached: .none)),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
                     tapAction: {}
                 )
@@ -127,7 +127,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "Old wallet"),
-                    totalBalancePublisher: .just(output: .loaded(.init(balance: 96.75, currencyCode: "USD", hasError: false, allTokensBalancesIncluded: true))),
+                    totalBalancePublisher: .just(output: .loaded(balance: 96.75, currencyCode: "USD")),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage)),
                     tapAction: {}
                 )
@@ -138,7 +138,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: true,
                     userWalletNamePublisher: .just(output: "Locked wallet"),
-                    totalBalancePublisher: .just(output: .failedToLoad(error: CommonError.noData)),
+                    totalBalancePublisher: .just(output: .failed(cached: .none)),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage))
                         .delay(for: 4, scheduler: DispatchQueue.main)
                         .eraseToAnyPublisher(),

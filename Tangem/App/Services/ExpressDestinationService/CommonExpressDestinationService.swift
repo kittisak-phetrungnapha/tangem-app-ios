@@ -38,32 +38,39 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 
             return isNotSource && isAvailable && isNotCustom && hasPair
         }
-
-        AppLog.shared.debug("[Express] \(self) has searchableWalletModels: \(searchableWalletModels.map { ($0.expressCurrency, $0.fiatBalance) })")
-
-        if let lastSwappedWallet = searchableWalletModels.first(where: { isLastTransactionWith(walletModel: $0) }) {
-            AppLog.shared.debug("[Express] \(self) selected lastSwappedWallet: \(lastSwappedWallet.expressCurrency)")
-            return lastSwappedWallet
+        .map { walletModel -> (wallet: WalletModel, balance: TokenBalanceProvider) in
+            let availableBalanceProvider = AvailableBalanceProvider(walletModel: walletModel)
+            let fiatBalanceProvider = FiatBalanceProvider(walletModel: walletModel, cryptoBalanceProvider: availableBalanceProvider)
+            return (wallet: walletModel, balance: fiatBalanceProvider)
         }
 
-        let walletModelsWithPositiveBalance = searchableWalletModels.filter { ($0.fiatValue ?? 0) > 0 }
+        log("Has searchableWalletModels: \(searchableWalletModels.map { ($0.wallet.expressCurrency, $0.balance.balanceType.value) })")
+
+        if let lastSwappedWallet = searchableWalletModels.first(where: { isLastTransactionWith(walletModel: $0.wallet) }) {
+            log("Select lastSwappedWallet: \(lastSwappedWallet.wallet.expressCurrency)")
+            return lastSwappedWallet.wallet
+        }
+
+        let walletModelsWithPositiveBalance = searchableWalletModels.filter { ($0.balance.balanceType.value ?? 0) > 0 }
 
         // If all wallets without balance
         if walletModelsWithPositiveBalance.isEmpty, let first = searchableWalletModels.first {
-            AppLog.shared.debug("[Express] \(self) has a zero wallets with positive balance then selected: \(first.expressCurrency)")
-            return first
+            log("Has a zero wallets with positive balance then selected: \(first.wallet.expressCurrency)")
+            return first.wallet
         }
 
         // If user has wallets with balance then sort they
-        let sortedWallets = walletModelsWithPositiveBalance.sorted(by: { ($0.fiatValue ?? 0) > ($1.fiatValue ?? 0) })
+        let sortedWallets = walletModelsWithPositiveBalance.sorted(by: {
+            ($0.balance.balanceType.value ?? 0) > ($1.balance.balanceType.value ?? 0)
+        })
 
         // Start searching destination with available providers
         if let maxBalanceWallet = sortedWallets.first {
-            AppLog.shared.debug("[Express] \(self) selected maxBalanceWallet: \(maxBalanceWallet.expressCurrency)")
-            return maxBalanceWallet
+            log("Select maxBalanceWallet: \(maxBalanceWallet.wallet.expressCurrency)")
+            return maxBalanceWallet.wallet
         }
 
-        AppLog.shared.debug("[Express] \(self) couldn't find acceptable wallet")
+        log("Couldn't find acceptable wallet")
         throw ExpressDestinationServiceError.destinationNotFound
     }
 }
@@ -76,6 +83,10 @@ private extension CommonExpressDestinationService {
         let lastCurrency = transactions.last?.destinationTokenTxInfo.tokenItem.expressCurrency
 
         return walletModel.expressCurrency == lastCurrency
+    }
+
+    func log(_ message: String) {
+        AppLog.shared.debug("[Express] \(self) \(message)")
     }
 }
 

@@ -8,11 +8,6 @@
 
 import Foundation
 
-enum TokenItemBalanceState {
-    case loading(cached: String?)
-    case loaded(value: String)
-}
-
 enum TokenItemViewState {
     case notLoaded
     case noDerivation

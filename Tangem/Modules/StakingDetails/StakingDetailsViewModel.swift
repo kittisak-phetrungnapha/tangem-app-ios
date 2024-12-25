@@ -14,7 +14,7 @@ import TangemStaking
 final class StakingDetailsViewModel: ObservableObject {
     // MARK: - ViewState
 
-    var title: String { Localization.stakingDetailsTitle(walletModel.name) }
+    var title: String { Localization.stakingDetailsTitle(tokenItem.name) }
 
     @Published var hideStakingInfoBanner = true
     @Published var detailsViewModels: [DefaultRowViewModel] = []
@@ -32,7 +32,8 @@ final class StakingDetailsViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let walletModel: WalletModel
+    private let tokenItem: TokenItem
+    private let tokenBalanceProvider: TokenBalanceProvider
     private let stakingManager: StakingManager
     private weak var coordinator: StakingDetailsRoutable?
 
@@ -40,17 +41,19 @@ final class StakingDetailsViewModel: ObservableObject {
     private lazy var percentFormatter = PercentFormatter()
     private lazy var dateFormatter = DateComponentsFormatter.staking()
     private lazy var stakesBuilder = StakingDetailsStakeViewDataBuilder(
-        tokenItem: walletModel.tokenItem
+        tokenItem: tokenItem
     )
 
     private var bag: Set<AnyCancellable> = []
 
     init(
-        walletModel: WalletModel,
+        tokenItem: TokenItem,
+        tokenBalanceProvider: TokenBalanceProvider,
         stakingManager: StakingManager,
         coordinator: StakingDetailsRoutable
     ) {
-        self.walletModel = walletModel
+        self.tokenItem = tokenItem
+        self.tokenBalanceProvider = tokenBalanceProvider
         self.stakingManager = stakingManager
         self.coordinator = coordinator
 
@@ -84,7 +87,7 @@ final class StakingDetailsViewModel: ObservableObject {
             event: .stakingInfoScreenOpened,
             params: [
                 .validatorsCount: balances,
-                .token: walletModel.tokenItem.currencySymbol,
+                .token: tokenItem.currencySymbol,
             ]
         )
     }
@@ -101,8 +104,8 @@ private extension StakingDetailsViewModel {
             }
             .store(in: &bag)
 
-        walletModel
-            .walletDidChangePublisher
+        tokenBalanceProvider
+            .balanceTypePublisher
             .withWeakCaptureOf(self)
             .receive(on: DispatchQueue.main)
             .sink { viewModel, state in
@@ -111,12 +114,12 @@ private extension StakingDetailsViewModel {
             .store(in: &bag)
     }
 
-    func setupMainActionButton(state: WalletModel.State) {
+    func setupMainActionButton(state: TokenBalanceType) {
         switch state {
-        case .created, .loading:
+        case .empty, .loading, .failure:
             break
-        case .loaded, .failed, .noAccount, .noDerivation:
-            let hasBalance = (walletModel.availableBalance.crypto ?? 0) > 0
+        case .loaded(let balance):
+            let hasBalance = balance > 0
             actionButtonDisabled = !hasBalance
         }
     }
@@ -167,16 +170,22 @@ private extension StakingDetailsViewModel {
                     )
                 }
             ),
-            DefaultRowViewModel(
-                title: Localization.stakingDetailsAvailable,
-                detailsType: .text(walletModel.availableBalanceFormatted.crypto, sensitive: true)
-            ),
         ]
+
+        if let balance = tokenBalanceProvider.balanceType.value {
+            let formatted = balanceFormatter.formatFiatBalance(balance)
+            viewModels.append(
+                DefaultRowViewModel(
+                    title: Localization.stakingDetailsAvailable,
+                    detailsType: .text(formatted, sensitive: true)
+                )
+            )
+        }
 
         if shouldShowMinimumRequirement() {
             let minimumFormatted = balanceFormatter.formatCryptoBalance(
                 yield.enterMinimumRequirement,
-                currencyCode: walletModel.tokenItem.currencySymbol
+                currencyCode: tokenItem.currencySymbol
             )
 
             viewModels.append(
@@ -256,9 +265,9 @@ private extension StakingDetailsViewModel {
         case let rewardsValue:
             let rewardsCryptoFormatted = balanceFormatter.formatCryptoBalance(
                 rewardsValue,
-                currencyCode: walletModel.tokenItem.currencySymbol
+                currencyCode: tokenItem.currencySymbol
             )
-            let rewardsFiat = walletModel.tokenItem.currencyId.flatMap {
+            let rewardsFiat = tokenItem.currencyId.flatMap {
                 BalanceConverter().convertToFiat(rewardsValue, currencyId: $0)
             }
             let rewardsFiatFormatted = balanceFormatter.formatFiatBalance(rewardsFiat)
@@ -343,7 +352,7 @@ private extension StakingDetailsViewModel {
     }
 
     func shouldShowMinimumRequirement() -> Bool {
-        switch walletModel.tokenItem.blockchain {
+        switch tokenItem.blockchain {
         case .polkadot, .binance: true
         default: false
         }
