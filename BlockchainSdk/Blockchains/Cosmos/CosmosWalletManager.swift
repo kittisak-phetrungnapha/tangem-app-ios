@@ -32,15 +32,13 @@ class CosmosWalletManager: BaseManager, WalletManager {
         cancellable = networkService
             .accountInfo(for: wallet.address, tokens: cardTokens, transactionHashes: transactionHashes)
             .sink { [weak self] result in
-                completion(.failure(WalletError.empty))
-
-//                switch result {
-//                case .failure(let error):
-//                    self?.wallet.clearAmounts()
-//                    completion(.failure(error))
-//                case .finished:
-//                    completion(.success(()))
-//                }
+                switch result {
+                case .failure(let error):
+                    self?.wallet.clearAmounts()
+                    completion(.failure(error))
+                case .finished:
+                    completion(.success(()))
+                }
             } receiveValue: { [weak self] in
                 self?.updateWallet(accountInfo: $0)
             }

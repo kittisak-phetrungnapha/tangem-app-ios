@@ -76,10 +76,10 @@ final class MainHeaderViewModel: ObservableObject {
                 switch newValue {
                 case .loading:
                     isLoadingFiatBalance = true
-                case .success(.some(let balance)):
-                    AppLog.shared.debug("Set total balance to \(balance)")
+                case .success(.some(let totalBalance)):
+                    AppLog.shared.debug("Set total balance to \(totalBalance)")
                     isLoadingFiatBalance = false
-                    self.balance = balance
+                    balance = totalBalance
 
                 case .success(.none):
                     AppLog.shared.debug("Set total balance to empty string")

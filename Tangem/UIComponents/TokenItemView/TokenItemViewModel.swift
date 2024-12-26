@@ -61,7 +61,6 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     private let tokenTapped: (WalletModelId) -> Void
     private let infoProvider: TokenItemInfoProvider
     private let priceChangeUtility = PriceChangeUtility()
-    private let balanceFormatter = BalanceFormatter()
     private let priceFormatter = TokenItemPriceFormatter()
 
     private var bag = Set<AnyCancellable>()

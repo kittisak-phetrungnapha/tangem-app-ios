@@ -37,7 +37,6 @@ class CommonMainHeaderBalanceProvider {
     private func bind() {
         balanceSubscription = totalBalanceProvider
             .totalBalancePublisher
-            .print("totalBalancePublisher->>")
             .sink(receiveValue: { [weak self] newValue in
                 guard let self else {
                     return
@@ -53,17 +52,17 @@ class CommonMainHeaderBalanceProvider {
                     headerBalanceSubject.send(.success(.none))
                 case .loading:
                     headerBalanceSubject.send(.loading)
-                case .loaded(let balance, let currencyCode):
+                case .loaded(let balance):
                     var balanceToFormat = balance
                     if userWalletStateInfoProvider.isTokensListEmpty {
                         balanceToFormat = 0
                     }
 
-                    let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: balanceToFormat, currencyCode: currencyCode)
+                    let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: balanceToFormat)
                     headerBalanceSubject.send(.success(formattedForMainBalance))
                 case .failed(.some(let cached), _):
                     // TODO: Check it
-                    let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: cached, currencyCode: "USD")
+                    let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: cached)
                     headerBalanceSubject.send(.success(formattedForMainBalance))
                 }
             })

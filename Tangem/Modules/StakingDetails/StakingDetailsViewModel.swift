@@ -170,17 +170,11 @@ private extension StakingDetailsViewModel {
                     )
                 }
             ),
+            DefaultRowViewModel(
+                title: Localization.stakingDetailsAvailable,
+                detailsType: .text(tokenBalanceProvider.formattedBalanceType.value, sensitive: true)
+            ),
         ]
-
-        if let balance = tokenBalanceProvider.balanceType.value {
-            let formatted = balanceFormatter.formatFiatBalance(balance)
-            viewModels.append(
-                DefaultRowViewModel(
-                    title: Localization.stakingDetailsAvailable,
-                    detailsType: .text(formatted, sensitive: true)
-                )
-            )
-        }
 
         if shouldShowMinimumRequirement() {
             let minimumFormatted = balanceFormatter.formatCryptoBalance(

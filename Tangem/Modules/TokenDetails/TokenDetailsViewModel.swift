@@ -329,13 +329,8 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
         walletModel
             .combineBalanceProvider
             .formattedBalanceTypePublisher
-            .map { balanceType in
-                switch balanceType {
-                case .loading: .loading
-                case .failure(let cached): .success(cached.value)
-                case .loaded(let value): .success(value)
-                }
-            }
+            .withWeakCaptureOf(self)
+            .map { $0.mapToBalanceWithButtonsViewModelBalanceResult(balanceType: $1) }
             .eraseToAnyPublisher()
     }
 
@@ -343,13 +338,8 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
         walletModel
             .combineFiatBalanceProvider
             .formattedBalanceTypePublisher
-            .map { balanceType in
-                switch balanceType {
-                case .loading: .loading
-                case .failure(let cached): .success(cached.value)
-                case .loaded(let value): .success(value)
-                }
-            }
+            .withWeakCaptureOf(self)
+            .map { $0.mapToBalanceWithButtonsViewModelBalanceResult(balanceType: $1) }
             .eraseToAnyPublisher()
     }
 
@@ -357,13 +347,8 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
         walletModel
             .availableBalanceProvider
             .formattedBalanceTypePublisher
-            .map { balanceType in
-                switch balanceType {
-                case .loading: .loading
-                case .failure(let cached): .success(cached.value)
-                case .loaded(let value): .success(value)
-                }
-            }
+            .withWeakCaptureOf(self)
+            .map { $0.mapToBalanceWithButtonsViewModelBalanceResult(balanceType: $1) }
             .eraseToAnyPublisher()
     }
 
@@ -371,13 +356,16 @@ extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
         walletModel
             .availableFiatBalanceProvider
             .formattedBalanceTypePublisher
-            .map { balanceType in
-                switch balanceType {
-                case .loading: .loading
-                case .failure(let cached): .success(cached.value)
-                case .loaded(let value): .success(value)
-                }
-            }
+            .withWeakCaptureOf(self)
+            .map { $0.mapToBalanceWithButtonsViewModelBalanceResult(balanceType: $1) }
             .eraseToAnyPublisher()
+    }
+
+    private func mapToBalanceWithButtonsViewModelBalanceResult(balanceType: FormattedTokenBalanceType) -> BalanceWithButtonsViewModel.BalanceResult {
+        switch balanceType {
+        case .loading: .loading
+        case .failure(let cached): .success(cached.value)
+        case .loaded(let value): .success(value)
+        }
     }
 }

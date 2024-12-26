@@ -83,7 +83,7 @@ class SettingsUserWalletRowViewModel: ObservableObject, Identifiable {
                     viewModel.balanceState = .loading
                 case .empty:
                     viewModel.balanceState = .noData
-                case .loaded(let balance, _):
+                case .loaded(let balance):
                     let formatted = viewModel.balanceFormatter.formatFiatBalance(balance)
                     viewModel.balanceState = .loaded(text: formatted)
 

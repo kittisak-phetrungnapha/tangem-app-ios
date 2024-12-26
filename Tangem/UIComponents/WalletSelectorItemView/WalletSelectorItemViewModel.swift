@@ -85,7 +85,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
                     viewModel.balanceState = .loaded(text: BalanceFormatter.defaultEmptyBalanceString)
                 case .loading:
                     viewModel.balanceState = .loading
-                case .loaded(let balance, _):
+                case .loaded(let balance):
                     let formatted = viewModel.balanceFormatter.formatFiatBalance(balance)
                     viewModel.balanceState = .loaded(text: formatted)
                 case .failed(cached: .some(let cached), _):

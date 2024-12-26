@@ -59,7 +59,7 @@ class LockedUserWalletModel: UserWalletModel {
     }
 
     var totalBalancePublisher: AnyPublisher<TotalBalanceState, Never> {
-        .just(output: .loaded(balance: 0, currencyCode: ""))
+        .just(output: .loaded(balance: 0))
     }
 
     var analyticsContextData: AnalyticsContextData {

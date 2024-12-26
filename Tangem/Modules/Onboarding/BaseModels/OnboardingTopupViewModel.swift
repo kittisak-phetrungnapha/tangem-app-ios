@@ -109,8 +109,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
             let zeroAmount = Amount(with: model.wallet.blockchain, type: .coin, value: 0)
             cardBalance = zeroAmount.string(with: 8)
         } else {
-            let balance = AvailableBalanceProvider(walletModel: model).balanceType.value
-            cardBalance = BalanceFormatter().formatCryptoBalance(balance, currencyCode: model.tokenItem.currencySymbol)
+            cardBalance = model.availableBalanceProvider.formattedBalanceType.value
         }
     }
 

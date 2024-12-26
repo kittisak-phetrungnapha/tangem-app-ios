@@ -154,17 +154,5 @@ struct OrganizeTokensListFactory {
         case .loading: .loading
         case .loaded(let value): .loaded(text: value)
         }
-
-//        guard !walletModel.rateFormatted.isEmpty else { return .noData }
-//
-//        let state = TokenItemViewState(walletModel: walletModel)
-//        switch state {
-//        case .notLoaded, .loaded, .noAccount, .noDerivation:
-//            return .loaded(text: walletModel.allBalanceFormatted.fiat)
-//        case .loading:
-//            return .loading
-//        case .networkError:
-//            return .noData
-//        }
     }
 }

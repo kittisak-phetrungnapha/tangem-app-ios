@@ -127,7 +127,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "Old wallet"),
-                    totalBalancePublisher: .just(output: .loaded(balance: 96.75, currencyCode: "USD")),
+                    totalBalancePublisher: .just(output: .loaded(balance: 96.75)),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage)),
                     tapAction: {}
                 )

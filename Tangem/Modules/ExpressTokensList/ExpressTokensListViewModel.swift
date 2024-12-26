@@ -38,7 +38,6 @@ final class ExpressTokensListViewModel: ObservableObject, Identifiable {
     // For Analytics
     private var selectedWallet: WalletModel?
     private var updateTask: Task<Void, Never>?
-    private let balanceFormatter = BalanceFormatter()
 
     init(
         swapDirection: SwapDirection,
