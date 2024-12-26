@@ -18,7 +18,7 @@ class TotalBalanceProvider {
     private let walletModelsManager: WalletModelsManager
     private let derivationManager: DerivationManager?
 
-    private let totalBalanceSubject = CurrentValueSubject<TotalBalanceState, Never>(.empty)
+    private let totalBalanceSubject = CurrentValueSubject<TotalBalanceState, Never>(.loading(cached: .none))
 
     private var walletModelsSubscription: AnyCancellable?
     private var updateSubscription: AnyCancellable?
@@ -67,7 +67,6 @@ private extension TotalBalanceProvider {
 
     // Listen changes:
     // - Wallet models count
-    // - App's currency code change
     // - Entries without derivation count
     func contextDidChange(walletModels: [WalletModel], hasEntriesWithoutDerivation: Bool) {
         // Clear previous

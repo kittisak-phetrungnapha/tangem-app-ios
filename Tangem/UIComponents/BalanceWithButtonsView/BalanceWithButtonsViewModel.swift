@@ -125,11 +125,3 @@ extension BalanceWithButtonsViewModel {
         }
     }
 }
-
-protocol BalanceWithButtonsViewModelBalanceProvider {
-    var totalCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> { get }
-    var totalFiatBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> { get }
-
-    var availableCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> { get }
-    var availableFiatBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> { get }
-}

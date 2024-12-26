@@ -2645,6 +2645,8 @@
 		EF61837F2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61837D2B4F04F10064B7CD /* SwappingSuccessCoordinator.swift */; };
 		EF6183802B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF61837E2B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift */; };
 		EF6221B3292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */; };
+		EF6548E42D1D803A00F770CB /* TokenBalancesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6548E22D1D803A00F770CB /* TokenBalancesRepository.swift */; };
+		EF6548E62D1D82E300F770CB /* BalanceWithButtonsViewModelBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6548E52D1D82E300F770CB /* BalanceWithButtonsViewModelBalanceProvider.swift */; };
 		EF6600532B6D187600B65449 /* PendingTransactionsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6600522B6D187600B65449 /* PendingTransactionsListView.swift */; };
 		EF661E2E28BF41D6005769E5 /* Intents.strings in Resources */ = {isa = PBXBuildFile; fileRef = EF661E2728BF41D6005769E5 /* Intents.strings */; };
 		EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = EF661E2928BF41D6005769E5 /* Intents.intentdefinition */; };
@@ -5833,6 +5835,8 @@
 		EF61837E2B4F04F10064B7CD /* SwappingSuccessCoordinatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwappingSuccessCoordinatorView.swift; sourceTree = "<group>"; };
 		EF6221B2292B5FCD00D1D4A0 /* DecimalNumberFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecimalNumberFormatterTests.swift; sourceTree = "<group>"; };
 		EF6548E72D1D890D00F770CB /* CommonTokenBalancesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenBalancesRepository.swift; sourceTree = "<group>"; };
+		EF6548E22D1D803A00F770CB /* TokenBalancesRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenBalancesRepository.swift; sourceTree = "<group>"; };
+		EF6548E52D1D82E300F770CB /* BalanceWithButtonsViewModelBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceWithButtonsViewModelBalanceProvider.swift; sourceTree = "<group>"; };
 		EF6600522B6D187600B65449 /* PendingTransactionsListView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PendingTransactionsListView.swift; sourceTree = "<group>"; };
 		EF661E2A28BF41D6005769E5 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; name = en; path = en.lproj/Intents.intentdefinition; sourceTree = "<group>"; };
 		EF661E2C28BF41D6005769E5 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Intents.strings; sourceTree = "<group>"; };
@@ -8613,6 +8617,7 @@
 			children = (
 				B0A4C49F2A270F5B0060E039 /* BalanceWithButtonsView.swift */,
 				B0A4C4A12A271CD20060E039 /* BalanceWithButtonsViewModel.swift */,
+				EF6548E52D1D82E300F770CB /* BalanceWithButtonsViewModelBalanceProvider.swift */,
 			);
 			path = BalanceWithButtonsView;
 			sourceTree = "<group>";
@@ -12798,6 +12803,7 @@
 			isa = PBXGroup;
 			children = (
 				EF5CEAA82D1EF6CC0013D422 /* TokenBalancesRepository */,
+				EF6548E32D1D803A00F770CB /* TokenBalancesRepository */,
 				EF42D7842D1D65D90065AFD1 /* BalanceProvider */,
 				DA76BF502CEF966300199317 /* PendingTransactionsManager */,
 				EF2561102CC6A8E000D3C16A /* Onramp */,
@@ -14607,6 +14613,14 @@
 				EFA90E452C88B56E00F34BE0 /* StakingDetailsStakeViewDataBuilder.swift */,
 			);
 			path = StakingDetailsStakeView;
+			sourceTree = "<group>";
+		};
+		EF6548E32D1D803A00F770CB /* TokenBalancesRepository */ = {
+			isa = PBXGroup;
+			children = (
+				EF6548E22D1D803A00F770CB /* TokenBalancesRepository.swift */,
+			);
+			path = TokenBalancesRepository;
 			sourceTree = "<group>";
 		};
 		EF6600512B6D187600B65449 /* PendingTransactionsListView */ = {
@@ -17219,6 +17233,7 @@
 				B605224B2A5C20E000966DFA /* OrganizeTokensDragAndDropController+AuxiliaryTypes.swift in Sources */,
 				EFAF63E92927CA63004B3227 /* Setupable.swift in Sources */,
 				EF5CEAA42D1EF6910013D422 /* PulseEffect.swift in Sources */,
+				EF6548E62D1D82E300F770CB /* BalanceWithButtonsViewModelBalanceProvider.swift in Sources */,
 				2D1BB3932C089816008392F7 /* MarketsItemViewModel.swift in Sources */,
 				B6FCEE752C40E28700CA9252 /* CGPoint+.swift in Sources */,
 				B06C083D2A73E0E900D982BC /* MainHeaderSubtitleInfo.swift in Sources */,
@@ -18457,6 +18472,7 @@
 				B6EE593D2C8B2E80003A0696 /* ViewHierarchySnapshotting+Environment.swift in Sources */,
 				EFB2162E2CF4A9FD002BED0F /* OnrampPaymentMethodIconView.swift in Sources */,
 				B67688F12B078F71006C94F7 /* MainBottomSheetOverlayView.swift in Sources */,
+				EF6548E42D1D803A00F770CB /* TokenBalancesRepository.swift in Sources */,
 				B0D1AC322906719300584E6C /* Analytics+Event.swift in Sources */,
 				DC04693A2B8E6BE400C785D1 /* SellActionURLHelper.swift in Sources */,
 				B018770F2CEC90BC00794300 /* VisaOnboardingAccessCodeSetupViewModel.swift in Sources */,

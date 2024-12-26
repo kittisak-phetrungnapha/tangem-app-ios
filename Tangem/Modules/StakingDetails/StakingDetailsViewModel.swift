@@ -40,9 +40,7 @@ final class StakingDetailsViewModel: ObservableObject {
     private lazy var balanceFormatter = BalanceFormatter()
     private lazy var percentFormatter = PercentFormatter()
     private lazy var dateFormatter = DateComponentsFormatter.staking()
-    private lazy var stakesBuilder = StakingDetailsStakeViewDataBuilder(
-        tokenItem: tokenItem
-    )
+    private lazy var stakesBuilder = StakingDetailsStakeViewDataBuilder(tokenItem: tokenItem)
 
     private var bag: Set<AnyCancellable> = []
 
@@ -116,11 +114,13 @@ private extension StakingDetailsViewModel {
 
     func setupMainActionButton(state: TokenBalanceType) {
         switch state {
-        case .empty, .loading, .failure:
+        case .empty, .loading:
             break
-        case .loaded(let balance):
-            let hasBalance = balance > 0
-            actionButtonDisabled = !hasBalance
+        // Only with positive balance
+        case .loaded(let balance) where balance > 0:
+            actionButtonDisabled = false
+        case .failure, .loaded:
+            actionButtonDisabled = true
         }
     }
 

@@ -18,7 +18,7 @@ final class CommonRateAppController {
     private var isBalanceLoadedPublisher: AnyPublisher<Bool, Never> {
         userWalletModel
             .totalBalancePublisher
-            .map { $0.balance != nil }
+            .map { $0.isLoaded }
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -58,7 +58,7 @@ final class CommonRateAppController {
     private func bind() {
         userWalletModel
             .totalBalancePublisher
-            .compactMap { $0.balance }
+            .filter { $0.isLoaded }
             .withWeakCaptureOf(self)
             .sink { controller, _ in
                 let walletModels = controller.userWalletModel.walletModelsManager.walletModels

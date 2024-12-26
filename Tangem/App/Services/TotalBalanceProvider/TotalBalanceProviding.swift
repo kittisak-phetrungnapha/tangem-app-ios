@@ -28,12 +28,19 @@ enum TotalBalanceState: Hashable {
         }
     }
 
-    var balance: Decimal? {
+    var isLoaded: Bool {
         switch self {
-        case .loaded(let balance): balance
-        default: nil
+        case .loaded: true
+        default: false
         }
     }
+
+//    var balance: Decimal? {
+//        switch self {
+//        case .loaded(let balance): balance
+//        default: nil
+//        }
+//    }
 }
 
 // MARK: - CustomStringConvertible
