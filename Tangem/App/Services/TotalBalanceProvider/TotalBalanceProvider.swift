@@ -142,7 +142,7 @@ private extension TotalBalanceProvider {
             return .failed(cached: cachedBalance, failedItems: failureBalances.map(\.item))
         }
 
-        guard let loadedBalance = loadedBalance(balances: balances.map(\.balance)) else {
+        guard let loadedBalance = loadedBalance(balances: balances) else {
             // some tokens don't have balance
             return .empty
         }
@@ -214,9 +214,9 @@ private extension TotalBalanceProvider {
         return cachedBalance
     }
 
-    func loadedBalance(balances: [TokenBalanceType]) -> Decimal? {
+    func loadedBalance(balances: [(item: TokenItem, balance: TokenBalanceType)]) -> Decimal? {
         let loadedBalance = balances.compactMap { balance in
-            switch balance {
+            switch balance.balance {
             case .loaded(let balance):
                 return balance
             // If we don't balance because custom token don't have rates
@@ -224,7 +224,7 @@ private extension TotalBalanceProvider {
             case .empty(.custom):
                 return .zero
             default:
-                assertionFailure("Balance not found \(balance)")
+                assertionFailure("Balance not found \((balance.item.name, balance.balance))")
                 return nil
             }
         }
