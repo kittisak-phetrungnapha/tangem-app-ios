@@ -17,8 +17,8 @@ protocol TotalBalanceProviding {
 
 enum TotalBalanceState: Hashable {
     case empty
-    case loading(cached: TokenBalanceType.Cached?)
-    case failed(cached: TokenBalanceType.Cached?)
+    case loading(cached: Decimal?)
+    case failed(cached: Decimal?, failedItems: [TokenItem])
     case loaded(balance: Decimal, currencyCode: String)
 
     var isLoading: Bool {
@@ -32,6 +32,19 @@ enum TotalBalanceState: Hashable {
         switch self {
         case .loaded(let balance, _): balance
         default: nil
+        }
+    }
+}
+
+// MARK: - CustomStringConvertible
+
+extension TotalBalanceState: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .empty: "Empty"
+        case .loading(let cached): "Loading with cached \(String(describing: cached))"
+        case .failed(let cached, let failedItems): "Failed with cached \(String(describing: cached)) items: \(failedItems.map(\.name))"
+        case .loaded(let balance, _): "Loaded amount \(String(describing: balance))"
         }
     }
 }

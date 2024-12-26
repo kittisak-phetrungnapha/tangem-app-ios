@@ -100,7 +100,7 @@ private extension TotalBalanceProvider {
 
         trackTokenBalanceLoaded(walletModels: walletModels)
 
-        let providers = walletModels.map { $0.combineFiatBalanceProvider }
+        let providers = walletModels.map { (tokenItem: $0.tokenItem, provider: $0.combineFiatBalanceProvider) }
 
         if !providers.isEmpty {
             // Setup updating listener
@@ -112,24 +112,24 @@ private extension TotalBalanceProvider {
         }
 
         // Update with data which already have
+        let balances = providers.map { (item: $0.tokenItem, balance: $0.provider.balanceType) }
         updateTotalBalance(
-            balances: providers.map { $0.balanceType
-            },
+            balances: balances,
             currencyCode: currencyCode,
             hasEntriesWithoutDerivation: hasEntriesWithoutDerivation
         )
     }
 
-    func subscribeToUpdates(providers: [TokenBalanceProvider], currencyCode: String, hasEntriesWithoutDerivation: Bool) {
+    func subscribeToUpdates(providers: [(tokenItem: TokenItem, provider: TokenBalanceProvider)], currencyCode: String, hasEntriesWithoutDerivation: Bool) {
         // Subscription to handle balance loading completion
         updateSubscription = providers
-            .map { $0.balanceTypePublisher }
+            .map { $0.provider.balanceTypePublisher }
             .merge()
             .mapToValue(providers)
             .receive(on: DispatchQueue.main)
             .withWeakCaptureOf(self)
             .sink { balanceProvider, providers in
-                let balances = providers.map { $0.balanceType }
+                let balances = providers.map { (item: $0.tokenItem, balance: $0.provider.balanceType) }
                 balanceProvider.updateTotalBalance(
                     balances: balances,
                     currencyCode: currencyCode,
@@ -138,20 +138,20 @@ private extension TotalBalanceProvider {
             }
     }
 
-    func updateTotalBalance(balances: [TokenBalanceType], currencyCode: String, hasEntriesWithoutDerivation: Bool) {
+    func updateTotalBalance(balances: [(item: TokenItem, balance: TokenBalanceType)], currencyCode: String, hasEntriesWithoutDerivation: Bool) {
         let state = mapToTotalBalance(balances: balances, currencyCode: currencyCode, hasEntriesWithoutDerivation: hasEntriesWithoutDerivation)
         totalBalanceSubject.send(state)
     }
 
-    func mapToTotalBalance(balances: [TokenBalanceType], currencyCode: String, hasEntriesWithoutDerivation: Bool) -> TotalBalanceState {
+    func mapToTotalBalance(balances: [(item: TokenItem, balance: TokenBalanceType)], currencyCode: String, hasEntriesWithoutDerivation: Bool) -> TotalBalanceState {
         if balances.isEmpty {
             return .loaded(balance: 0, currencyCode: currencyCode)
         }
 
-        AppLog.shared.debug("balances ->> \(balances)")
+        AppLog.shared.debug("balances ->> \(balances.map { ($0.item.name, $0.balance) })")
 
-        let cachedBalance = cachedBalance(balances: balances)
-        let hasLoading = balances.contains { $0.isLoading }
+        let cachedBalance = cachedBalance(balances: balances.map(\.balance))
+        let hasLoading = balances.contains { $0.balance.isLoading }
 
         if hasLoading {
             // Show it in loading state if only one is in loading process
@@ -163,14 +163,15 @@ private extension TotalBalanceProvider {
             return .empty
         }
 
-        let hasError = balances.contains { $0.isFailure }
+        let failureBalances = balances.filter { $0.balance.isFailure }
+        let hasError = !failureBalances.isEmpty
         if hasError {
             // If has error and cached balance show failed state with cached balances
             // Otherwise just show `empty`
-            return cachedBalance.map { .failed(cached: $0) } ?? .empty
+            return .failed(cached: cachedBalance, failedItems: failureBalances.map(\.item))
         }
 
-        guard let loadedBalance = loadedBalance(balances: balances) else {
+        guard let loadedBalance = loadedBalance(balances: balances.map(\.balance)) else {
             // some tokens don't have balance
             return .empty
         }
@@ -180,7 +181,7 @@ private extension TotalBalanceProvider {
             Analytics.logTopUpIfNeeded(balance: loadedBalance, for: userWalletId)
         }
 
-        let hasCustomToken = balances.contains { $0.isEmpty(for: .custom) }
+        let hasCustomToken = balances.contains { $0.balance.isEmpty(for: .custom) }
         let parameterValue = mapToBalanceParameterValue(
             hasBlockchainBalanceLoadingError: hasError,
             emptyRatesBecauseCustomToken: hasCustomToken,
@@ -224,7 +225,7 @@ private extension TotalBalanceProvider {
         }
     }
 
-    func cachedBalance(balances: [TokenBalanceType]) -> TokenBalanceType.Cached? {
+    func cachedBalance(balances: [TokenBalanceType]) -> Decimal? {
         let cachedBalances = balances.compactMap { balanceType in
             switch balanceType {
             case .loading(.some(let cached)), .failure(.some(let cached)):
@@ -234,14 +235,12 @@ private extension TotalBalanceProvider {
             }
         }
 
-        // All tokens have the cached balance
-        guard balances.count == cachedBalances.count,
-              let date = cachedBalances.first?.date else {
+        if cachedBalances.isEmpty {
             return nil
         }
 
         let cachedBalance = cachedBalances.reduce(0) { $0 + $1.balance }
-        return .init(balance: cachedBalance, date: date)
+        return cachedBalance
     }
 
     func loadedBalance(balances: [TokenBalanceType]) -> Decimal? {

@@ -88,10 +88,11 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
                 case .loaded(let balance, _):
                     let formatted = viewModel.balanceFormatter.formatFiatBalance(balance)
                     viewModel.balanceState = .loaded(text: formatted)
-                case .failed(cached: .some(let cached)):
-                    let formatted = viewModel.balanceFormatter.formatFiatBalance(cached.balance)
+                case .failed(cached: .some(let cached), _):
+                    // TODO: Cached
+                    let formatted = viewModel.balanceFormatter.formatFiatBalance(cached)
                     viewModel.balanceState = .loaded(text: formatted)
-                case .failed(cached: .none):
+                case .failed(cached: .none, _):
                     viewModel.balanceState = .loaded(text: Localization.commonUnreachable)
                 }
             }

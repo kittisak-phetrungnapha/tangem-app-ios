@@ -116,7 +116,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: false,
                     userWalletNamePublisher: .just(output: "My wallet"),
-                    totalBalancePublisher: .just(output: .failed(cached: .none)),
+                    totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.walletCard.uiImage)),
                     tapAction: {}
                 )
@@ -138,7 +138,7 @@ struct SettingsUserWalletRowView: View {
                     cardsCount: 2,
                     isUserWalletLocked: true,
                     userWalletNamePublisher: .just(output: "Locked wallet"),
-                    totalBalancePublisher: .just(output: .failed(cached: .none)),
+                    totalBalancePublisher: .just(output: .failed(cached: .none, failedItems: [])),
                     cardImagePublisher: .just(output: .embedded(Assets.Onboarding.darkCard.uiImage))
                         .delay(for: 4, scheduler: DispatchQueue.main)
                         .eraseToAnyPublisher(),

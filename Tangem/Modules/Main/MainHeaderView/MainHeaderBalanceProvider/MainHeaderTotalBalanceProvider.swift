@@ -37,6 +37,7 @@ class CommonMainHeaderBalanceProvider {
     private func bind() {
         balanceSubscription = totalBalanceProvider
             .totalBalancePublisher
+            .print("totalBalancePublisher->>")
             .sink(receiveValue: { [weak self] newValue in
                 guard let self else {
                     return
@@ -47,7 +48,7 @@ class CommonMainHeaderBalanceProvider {
                 }
 
                 switch newValue {
-                case .empty, .failed(.none):
+                case .empty, .failed(.none, _):
                     // We didn't show any error in header, so no need to specify error
                     headerBalanceSubject.send(.success(.none))
                 case .loading:
@@ -60,9 +61,9 @@ class CommonMainHeaderBalanceProvider {
 
                     let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: balanceToFormat, currencyCode: currencyCode)
                     headerBalanceSubject.send(.success(formattedForMainBalance))
-                case .failed(.some(let cached)):
+                case .failed(.some(let cached), _):
                     // TODO: Check it
-                    let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: cached.balance, currencyCode: "USD")
+                    let formattedForMainBalance = mainBalanceFormatter.formatBalance(balance: cached, currencyCode: "USD")
                     headerBalanceSubject.send(.success(formattedForMainBalance))
                 }
             })

@@ -38,7 +38,7 @@ extension CommonExpressDestinationService: ExpressDestinationService {
 
             return isNotSource && isAvailable && isNotCustom && hasPair
         }
-            .map { walletModel -> (walletModel: WalletModel, fiatBalance: Decimal?) in
+        .map { walletModel -> (walletModel: WalletModel, fiatBalance: Decimal?) in
             (walletModel: walletModel, fiatBalance: walletModel.availableFiatBalanceProvider.balanceType.value)
         }
 
