@@ -2566,11 +2566,7 @@
 		EF40C1112CF5EA2D007EF710 /* ExpressProvidersList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF40C1102CF5EA2D007EF710 /* ExpressProvidersList.swift */; };
 		EF40C1122CF5EE1A007EF710 /* Sequence+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B674D6D82A96AC8800172491 /* Sequence+.swift */; };
 		EF41937A2C2DE0CB006A30A5 /* SendAmount.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4193792C2DE0CB006A30A5 /* SendAmount.swift */; };
-		EF42D7852D1D65D90065AFD1 /* CombineBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D77C2D1D65D90065AFD1 /* CombineBalanceProvider.swift */; };
-		EF42D7862D1D65D90065AFD1 /* FiatBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D77D2D1D65D90065AFD1 /* FiatBalanceProvider.swift */; };
 		EF42D7872D1D65D90065AFD1 /* TokenBalanceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D7832D1D65D90065AFD1 /* TokenBalanceType.swift */; };
-		EF42D7882D1D65D90065AFD1 /* StakingBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D77E2D1D65D90065AFD1 /* StakingBalanceProvider.swift */; };
-		EF42D7892D1D65D90065AFD1 /* AvailableBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D77B2D1D65D90065AFD1 /* AvailableBalanceProvider.swift */; };
 		EF42D78A2D1D65D90065AFD1 /* BalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D7802D1D65D90065AFD1 /* BalanceProvider.swift */; };
 		EF42D78B2D1D65D90065AFD1 /* FormattedTokenBalanceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D7812D1D65D90065AFD1 /* FormattedTokenBalanceType.swift */; };
 		EF42D78C2D1D65D90065AFD1 /* FormattedTokenBalanceTypeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF42D7822D1D65D90065AFD1 /* FormattedTokenBalanceTypeBuilder.swift */; };
@@ -2984,6 +2980,10 @@
 		EFE8C70E2C77388A0067CF2E /* MultipleRewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8C7092C77388A0067CF2E /* MultipleRewardsView.swift */; };
 		EFE8C70F2C77388A0067CF2E /* MultipleRewardsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8C70A2C77388A0067CF2E /* MultipleRewardsViewModel.swift */; };
 		EFE8C7102C77388A0067CF2E /* MultipleRewardsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE8C70B2C77388A0067CF2E /* MultipleRewardsRoutable.swift */; };
+		EFE9D7372D1D6B7D0068F942 /* StakingBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE9D7352D1D6B7D0068F942 /* StakingBalanceProvider.swift */; };
+		EFE9D7382D1D6B7D0068F942 /* CombineBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE9D7332D1D6B7D0068F942 /* CombineBalanceProvider.swift */; };
+		EFE9D7392D1D6B7D0068F942 /* FiatBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE9D7342D1D6B7D0068F942 /* FiatBalanceProvider.swift */; };
+		EFE9D73A2D1D6B7D0068F942 /* AvailableBalanceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFE9D7322D1D6B7D0068F942 /* AvailableBalanceProvider.swift */; };
 		EFEB07C12C7CDFBC00E88352 /* WalletModel+Balance.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEB07C02C7CDFBC00E88352 /* WalletModel+Balance.swift */; };
 		EFEBCE2B29265CF300B0C886 /* TokenIconInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEBCE2A29265CF300B0C886 /* TokenIconInfo.swift */; };
 		EFEE22BA2BFCE3D10099917E /* WithdrawalNotificationEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFEE22B92BFCE3D10099917E /* WithdrawalNotificationEvent.swift */; };
@@ -5744,10 +5744,6 @@
 		EF407E6D2C04D81100366733 /* Period.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Period.swift; sourceTree = "<group>"; };
 		EF40C1102CF5EA2D007EF710 /* ExpressProvidersList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpressProvidersList.swift; sourceTree = "<group>"; };
 		EF4193792C2DE0CB006A30A5 /* SendAmount.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendAmount.swift; sourceTree = "<group>"; };
-		EF42D77B2D1D65D90065AFD1 /* AvailableBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableBalanceProvider.swift; sourceTree = "<group>"; };
-		EF42D77C2D1D65D90065AFD1 /* CombineBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineBalanceProvider.swift; sourceTree = "<group>"; };
-		EF42D77D2D1D65D90065AFD1 /* FiatBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatBalanceProvider.swift; sourceTree = "<group>"; };
-		EF42D77E2D1D65D90065AFD1 /* StakingBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceProvider.swift; sourceTree = "<group>"; };
 		EF42D7802D1D65D90065AFD1 /* BalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceProvider.swift; sourceTree = "<group>"; };
 		EF42D7812D1D65D90065AFD1 /* FormattedTokenBalanceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattedTokenBalanceType.swift; sourceTree = "<group>"; };
 		EF42D7822D1D65D90065AFD1 /* FormattedTokenBalanceTypeBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattedTokenBalanceTypeBuilder.swift; sourceTree = "<group>"; };
@@ -6173,6 +6169,10 @@
 		EFE8C7092C77388A0067CF2E /* MultipleRewardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleRewardsView.swift; sourceTree = "<group>"; };
 		EFE8C70A2C77388A0067CF2E /* MultipleRewardsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleRewardsViewModel.swift; sourceTree = "<group>"; };
 		EFE8C70B2C77388A0067CF2E /* MultipleRewardsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleRewardsRoutable.swift; sourceTree = "<group>"; };
+		EFE9D7322D1D6B7D0068F942 /* AvailableBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableBalanceProvider.swift; sourceTree = "<group>"; };
+		EFE9D7332D1D6B7D0068F942 /* CombineBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineBalanceProvider.swift; sourceTree = "<group>"; };
+		EFE9D7342D1D6B7D0068F942 /* FiatBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiatBalanceProvider.swift; sourceTree = "<group>"; };
+		EFE9D7352D1D6B7D0068F942 /* StakingBalanceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceProvider.swift; sourceTree = "<group>"; };
 		EFEB07C02C7CDFBC00E88352 /* WalletModel+Balance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletModel+Balance.swift"; sourceTree = "<group>"; };
 		EFEBCE2A29265CF300B0C886 /* TokenIconInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenIconInfo.swift; sourceTree = "<group>"; };
 		EFEE22B92BFCE3D10099917E /* WithdrawalNotificationEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawalNotificationEvent.swift; sourceTree = "<group>"; };
@@ -7006,7 +7006,6 @@
 				B62D43792CBC7EC700C2460E /* BlockchainSdkExample */,
 				5D3F77C324BF56D800E8695B /* Products */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
-				EF5CEAA52D1EF6BA0013D422 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -14284,17 +14283,6 @@
 			path = StakeKitMapper;
 			sourceTree = "<group>";
 		};
-		EF42D77F2D1D65D90065AFD1 /* Implementation */ = {
-			isa = PBXGroup;
-			children = (
-				EF42D77B2D1D65D90065AFD1 /* AvailableBalanceProvider.swift */,
-				EF42D77C2D1D65D90065AFD1 /* CombineBalanceProvider.swift */,
-				EF42D77D2D1D65D90065AFD1 /* FiatBalanceProvider.swift */,
-				EF42D77E2D1D65D90065AFD1 /* StakingBalanceProvider.swift */,
-			);
-			path = Implementation;
-			sourceTree = "<group>";
-		};
 		EF42D7842D1D65D90065AFD1 /* BalanceProvider */ = {
 			isa = PBXGroup;
 			children = (
@@ -16087,6 +16075,26 @@
 				EFE8C70B2C77388A0067CF2E /* MultipleRewardsRoutable.swift */,
 			);
 			path = MultipleRewards;
+			sourceTree = "<group>";
+		};
+		EFE9D7312D1D6ADA0068F942 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				EF26835C2D1AD89D0084FD3F /* TokenBalancesRepository.swift */,
+				EF26835F2D1AE4BB0084FD3F /* BalanceProvider.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		EFE9D7362D1D6B7D0068F942 /* Implementation */ = {
+			isa = PBXGroup;
+			children = (
+				EFE9D7322D1D6B7D0068F942 /* AvailableBalanceProvider.swift */,
+				EFE9D7332D1D6B7D0068F942 /* CombineBalanceProvider.swift */,
+				EFE9D7342D1D6B7D0068F942 /* FiatBalanceProvider.swift */,
+				EFE9D7352D1D6B7D0068F942 /* StakingBalanceProvider.swift */,
+			);
+			path = Implementation;
 			sourceTree = "<group>";
 		};
 		EFEE22BD2BFCF2D10099917E /* BlockchainSDKNotifications */ = {
@@ -18034,6 +18042,10 @@
 				DC22535B28A4FDE90094F30C /* GeneralNotificationEventsFactory.swift in Sources */,
 				B041C96E2C3FF74100CE027A /* TangemProgressViewStyle.swift in Sources */,
 				B04CD3482912AA61001EA84A /* IconWithMessagePlaceholderView.swift in Sources */,
+				EFE9D7372D1D6B7D0068F942 /* StakingBalanceProvider.swift in Sources */,
+				EFE9D7382D1D6B7D0068F942 /* CombineBalanceProvider.swift in Sources */,
+				EFE9D7392D1D6B7D0068F942 /* FiatBalanceProvider.swift in Sources */,
+				EFE9D73A2D1D6B7D0068F942 /* AvailableBalanceProvider.swift in Sources */,
 				DAE4BB162CD7A0D30020CE3F /* SearchUtil.swift in Sources */,
 				EF1D1AE02C272055000CB941 /* InformationRelevanceService.swift in Sources */,
 				B602752B2A7A651000865EA7 /* ShadowAnimatableModifier.swift in Sources */,
@@ -18524,11 +18536,7 @@
 				EF48E6C42B02273800FE0072 /* ExpressTokenItemViewModel.swift in Sources */,
 				DC3DCADB2A40AACF00F72554 /* DemoWalletModelsFactory.swift in Sources */,
 				B69E7FC82B220C3400B78D9A /* Dictionary+.swift in Sources */,
-				EF42D7852D1D65D90065AFD1 /* CombineBalanceProvider.swift in Sources */,
-				EF42D7862D1D65D90065AFD1 /* FiatBalanceProvider.swift in Sources */,
 				EF42D7872D1D65D90065AFD1 /* TokenBalanceType.swift in Sources */,
-				EF42D7882D1D65D90065AFD1 /* StakingBalanceProvider.swift in Sources */,
-				EF42D7892D1D65D90065AFD1 /* AvailableBalanceProvider.swift in Sources */,
 				EF42D78A2D1D65D90065AFD1 /* BalanceProvider.swift in Sources */,
 				EF42D78B2D1D65D90065AFD1 /* FormattedTokenBalanceType.swift in Sources */,
 				EF42D78C2D1D65D90065AFD1 /* FormattedTokenBalanceTypeBuilder.swift in Sources */,
