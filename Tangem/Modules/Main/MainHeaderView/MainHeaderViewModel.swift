@@ -77,12 +77,12 @@ final class MainHeaderViewModel: ObservableObject {
                 case .loading:
                     isLoadingFiatBalance = true
                 case .success(.some(let totalBalance)):
-                    AppLog.shared.debug("Set total balance to \(totalBalance)")
+                    AppLog.shared.debug("Wallet name: \(userWalletName) set total balance to \(String(totalBalance.characters))")
                     isLoadingFiatBalance = false
                     balance = totalBalance
 
                 case .success(.none):
-                    AppLog.shared.debug("Set total balance to empty string")
+                    AppLog.shared.debug("Wallet name: \(userWalletName) set total balance to empty string")
                     isLoadingFiatBalance = false
                     balance = .init(BalanceFormatter.defaultEmptyBalanceString)
                 }

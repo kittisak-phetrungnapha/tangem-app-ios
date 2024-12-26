@@ -47,9 +47,7 @@ class WalletModel {
     }
 
     var ratePublisher: AnyPublisher<LoadingResult<Decimal?, Never>, Never> {
-        _rate
-            .delay(for: .seconds(10), scheduler: DispatchQueue.global())
-            .eraseToAnyPublisher()
+        _rate.eraseToAnyPublisher()
     }
 
     /// Listen tx history changes
