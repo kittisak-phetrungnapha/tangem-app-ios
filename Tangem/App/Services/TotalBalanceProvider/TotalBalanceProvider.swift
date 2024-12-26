@@ -51,20 +51,18 @@ private extension TotalBalanceProvider {
         let hasEntriesWithoutDerivationPublisher = derivationManager?.hasPendingDerivations ?? .just(output: false)
 
         // Subscription to handle token changes
-        walletModelsSubscription = walletModelsManager
-            .walletModelsPublisher
-            .combineLatest(
-                AppSettings.shared.$selectedCurrencyCode.delay(for: 0.3, scheduler: DispatchQueue.main),
-                hasEntriesWithoutDerivationPublisher
+        walletModelsSubscription = Publishers.CombineLatest(
+            walletModelsManager.walletModelsPublisher,
+            hasEntriesWithoutDerivationPublisher
+        )
+        .receive(on: DispatchQueue.main)
+        .withWeakCaptureOf(self)
+        .sink { balanceProvider, input in
+            let (walletModels, hasEntriesWithoutDerivation) = input
+            balanceProvider.contextDidChange(
+                walletModels: walletModels, hasEntriesWithoutDerivation: hasEntriesWithoutDerivation
             )
-            .receive(on: DispatchQueue.main)
-            .withWeakCaptureOf(self)
-            .sink { balanceProvider, input in
-                let (walletModels, _, hasEntriesWithoutDerivation) = input
-                balanceProvider.contextDidChange(
-                    walletModels: walletModels, hasEntriesWithoutDerivation: hasEntriesWithoutDerivation
-                )
-            }
+        }
     }
 
     // Listen changes:
