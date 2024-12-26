@@ -31,11 +31,11 @@ extension WalletModel {
     // MARK: - Crypto
 
     var availableBalanceProvider: TokenBalanceProvider {
-        AvailableBalanceProvider(walletModel: self)
+        AvailableBalanceProvider(walletModel: self, tokenBalancesRepository: tokenBalancesRepository)
     }
 
     var stakingBalanceProvider: TokenBalanceProvider {
-        StakingBalanceProvider(walletModel: self)
+        StakingBalanceProvider(walletModel: self, tokenBalancesRepository: tokenBalancesRepository)
     }
 
     var combineBalanceProvider: TokenBalanceProvider {
