@@ -129,8 +129,10 @@ private extension TotalBalanceProvider {
             return .loading(cached: cachedBalance)
         }
 
+        let emptyBalances = balances.filter { $0.balance.isEmpty(for: .noData) }
+
         // Show empty only when all balances is loaded
-        if hasEntriesWithoutDerivation {
+        if hasEntriesWithoutDerivation || !emptyBalances.isEmpty {
             return .empty
         }
 
@@ -254,6 +256,7 @@ private extension TotalBalanceProvider {
 }
 
 private extension TokenBalanceType {
+    /// Don't loaded balance for some reason (Haven't call update yet / noDerivation state)
     func isEmpty(for reason: EmptyReason) -> Bool {
         switch self {
         case .empty(let emptyReason): emptyReason == reason

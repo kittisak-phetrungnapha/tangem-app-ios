@@ -109,6 +109,13 @@ private extension CommonTokenBalancesRepository {
             self.walletModel = walletModel
             self.type = type
         }
+
+        init(walletModel: WalletModel, type: CachedBalanceType) {
+            self.walletModel = walletModel
+            self.type = type
+        }
+
+        func hash(into hasher: inout Hasher) {}
     }
 
     struct StoredBalance: Hashable, Codable, CustomStringConvertible {
