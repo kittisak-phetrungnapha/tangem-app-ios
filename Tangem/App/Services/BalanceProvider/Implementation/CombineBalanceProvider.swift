@@ -37,10 +37,11 @@ extension CombineBalanceProvider: TokenBalanceProvider {
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         Publishers.CombineLatest(
-            availableBalanceProvider.balanceTypePublisher,
-            stakingBalanceProvider.balanceTypePublisher
+            availableBalanceProvider.balanceTypePublisher.removeDuplicates().print("availableBalanceProvider \(walletModel.tokenItem.name) ->>>"),
+            stakingBalanceProvider.balanceTypePublisher.removeDuplicates().print("stakingBalanceProvider \(walletModel.tokenItem.name) ->>>")
         )
         .map { self.mapToAvailableTokenBalance(available: $0, staking: $1) }
+        .print("combineBalanceProvider \(walletModel.tokenItem.name) ->>>")
         .eraseToAnyPublisher()
     }
 
@@ -51,6 +52,7 @@ extension CombineBalanceProvider: TokenBalanceProvider {
     var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
         balanceTypePublisher
             .map { self.mapToFormattedTokenBalanceType(type: $0) }
+            .print("combineBalanceProvider formatted \(walletModel.tokenItem.name) ->>>")
             .eraseToAnyPublisher()
     }
 }
@@ -64,27 +66,63 @@ private extension CombineBalanceProvider {
         case (.empty(let reason), _):
             return .empty(reason)
 
+        // There is only available -> show only available
+        case (.loaded(let balance), .empty):
+            return .loaded(balance)
+
+        // Available is loading and staking is empty -> loading with cache
+        case (.loading(.some(let available)), .empty):
+            return .loading(.init(balance: available.balance, date: available.date))
+
         // Both is loading and both have a cache -> loading with cache
         case (.loading(.some(let available)), .loading(.some(let staking))):
             let cached = available.balance + staking.balance
             return .loading(.init(balance: cached, date: available.date))
 
-        // There is one of them is loading without cached -> loading without cache
-        case (.loading, _), (_, .loading):
-            return .loading(nil)
+        // Available is loading and staking is failure -> loading with cache + loaded
+        case (.loading(.some(let available)), .failure(.some(let staking))):
+            let cached = available.balance + staking.balance
+            return .loading(.init(balance: cached, date: available.date))
 
-        // There is only available -> show only available
-        case (.loaded(let balance), .empty):
-            return .loaded(balance)
+        // Available is loading and staking is loaded -> loading with cache + loaded
+        case (.loading(.some(let available)), .loaded(let staking)):
+            let cached = available.balance + staking
+            return .loading(.init(balance: cached, date: available.date))
+
+        // Available is loaded and staking is loading -> loading with loaded + cache
+        case (.loaded(let available), .loading(.some(let staking))):
+            let cached = available + staking.balance
+            return .loading(.init(balance: cached, date: staking.date))
+
+        // Available is loaded and staking is loading -> loading with loaded + cache
+        case (.failure(.some(let available)), .loading(.some(let staking))):
+            let cached = available.balance + staking.balance
+            return .loading(.init(balance: cached, date: available.date))
+
+        // There is one of them is loading without cached -> loading without cache
+        case (.loading(.none), _), (_, .loading(.none)):
+            return .loading(.none)
 
         // Both is failure and both have a cache -> failure with cache
         case (.failure(.some(let available)), .failure(.some(let staking))):
             let cached = available.balance + staking.balance
             return .failure(.init(balance: cached, date: available.date))
 
+        // Available is failure and staking is empty -> loading with cache
+        case (.failure(.some(let available)), .empty):
+            return .failure(.init(balance: available.balance, date: available.date))
+
+        case (.failure(.some(let available)), .loaded(let staking)):
+            let cached = available.balance + staking
+            return .failure(.init(balance: cached, date: available.date))
+
+        case (.loaded(let available), .failure(.some(let staking))):
+            let cached = available + staking.balance
+            return .failure(.init(balance: cached, date: staking.date))
+
         // There is one of them is failure without cached -> show error
-        case (.failure, _), (_, .failure):
-            return .failure(nil)
+        case (.failure(.none), _), (_, .failure(.none)):
+            return .failure(.none)
 
         // There is both is loaded -> show loaded with sum
         case (.loaded(let available), .loaded(let staking)):

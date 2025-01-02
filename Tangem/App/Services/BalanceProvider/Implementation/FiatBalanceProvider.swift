@@ -30,9 +30,8 @@ extension FiatBalanceProvider: TokenBalanceProvider {
 
     var balanceTypePublisher: AnyPublisher<TokenBalanceType, Never> {
         Publishers.CombineLatest(
-            // Listen if rate was loaded after main balance
-            walletModel.ratePublisher.removeDuplicates(),
-            cryptoBalanceProvider.balanceTypePublisher.removeDuplicates()
+            walletModel.ratePublisher.removeDuplicates().print("walletModel.ratePublisher \(walletModel.tokenItem.name) ->>>"),
+            cryptoBalanceProvider.balanceTypePublisher.removeDuplicates().print("cryptoBalanceProvider \(walletModel.tokenItem.name) ->>>")
         )
         .map { self.mapToTokenBalance(rate: $0, balanceType: $1) }
         .eraseToAnyPublisher()
@@ -45,6 +44,7 @@ extension FiatBalanceProvider: TokenBalanceProvider {
     var formattedBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> {
         balanceTypePublisher
             .map { self.mapToFormattedTokenBalanceType(type: $0) }
+            .print("FiatBalanceProvider formatted \(walletModel.tokenItem.name) ->>>")
             .eraseToAnyPublisher()
     }
 }
@@ -52,7 +52,7 @@ extension FiatBalanceProvider: TokenBalanceProvider {
 // MARK: - Private
 
 extension FiatBalanceProvider {
-    func mapToTokenBalance(rate: LoadingResult<Decimal?, Never>, balanceType: TokenBalanceType) -> TokenBalanceType {
+    func mapToTokenBalance(rate: LoadingResult<WalletModel.Rate?, Never>, balanceType: TokenBalanceType) -> TokenBalanceType {
         switch (rate, balanceType) {
         // There is no rate because it's custom token
         case (.success(.none), _) where walletModel.isCustom:
@@ -81,16 +81,21 @@ extension FiatBalanceProvider {
 
         // Has some rate and cached value
         case (.success(.some(let rate)), .loading(.some(let cached))):
-            let fiat = cached.balance * rate
+            let fiat = cached.balance * rate.value
             return .loading(.init(balance: fiat, date: cached.date))
 
         // Has some rate and cached value
         case (.success(.some(let rate)), .failure(.some(let cached))):
-            let fiat = cached.balance * rate
+            let fiat = cached.balance * rate.value
             return .failure(.init(balance: fiat, date: cached.date))
 
+        // Has cached rate and cached value
+        case (.success(.some(.cached(let rate))), .loaded(let value)):
+            let fiat = value * rate.balance
+            return .failure(.init(balance: fiat, date: rate.date))
+
         // Has some rate and cached value
-        case (.success(.some(let rate)), .loaded(let value)):
+        case (.success(.some(.actual(let rate))), .loaded(let value)):
             let fiat = value * rate
             return .loaded(fiat)
         }
