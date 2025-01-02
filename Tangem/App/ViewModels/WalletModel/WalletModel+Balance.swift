@@ -31,11 +31,11 @@ extension WalletModel {
     // MARK: - Crypto
 
     var availableBalanceProvider: TokenBalanceProvider {
-        AvailableBalanceProvider(walletModel: self, tokenBalancesRepository: tokenBalancesRepository)
+        AvailableBalanceProvider(walletModel: self)
     }
 
     var stakingBalanceProvider: TokenBalanceProvider {
-        StakingBalanceProvider(walletModel: self, tokenBalancesRepository: tokenBalancesRepository)
+        StakingBalanceProvider(walletModel: self)
     }
 
     var combineBalanceProvider: TokenBalanceProvider {
@@ -62,6 +62,18 @@ extension WalletModel {
 }
 
 extension WalletModel {
+    enum Rate: Hashable {
+        case cached(TokenBalanceType.Cached)
+        case actual(Decimal)
+
+        var value: Decimal {
+            switch self {
+            case .cached(let value): value.balance
+            case .actual(let value): value
+            }
+        }
+    }
+
     struct BalanceFormatted: Hashable {
         let crypto, fiat: String
     }

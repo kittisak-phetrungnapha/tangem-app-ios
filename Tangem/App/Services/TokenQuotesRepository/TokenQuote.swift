@@ -15,4 +15,5 @@ struct TokenQuote: Hashable, Codable {
     let priceChange7d: Decimal?
     let priceChange30d: Decimal?
     let currencyCode: String
+    let date: Date
 }

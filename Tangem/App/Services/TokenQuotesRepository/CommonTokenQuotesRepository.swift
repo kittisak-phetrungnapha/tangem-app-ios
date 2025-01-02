@@ -216,7 +216,8 @@ private extension CommonTokenQuotesRepository {
                 priceChange24h: quote.priceChange,
                 priceChange7d: quote.priceChange7d,
                 priceChange30d: quote.priceChange30d,
-                currencyCode: currencyCode
+                currencyCode: currencyCode,
+                date: .now
             )
         }
 
