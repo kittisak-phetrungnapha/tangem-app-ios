@@ -97,11 +97,29 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
     }
 
     private func bind() {
-        infoProvider.tokenItemStatePublisher
+//        infoProvider.tokenItemStatePublisher
+//            .receive(on: DispatchQueue.main)
+//            // We need this debounce to prevent initial sequential state updates that can skip `loading` state
+//            .debounce(for: 0.1, scheduler: DispatchQueue.main)
+//            .sink(receiveValue: { [weak self] state in
+//                self?.setupState(state)
+//            })
+//            .store(in: &bag)
+
+        infoProvider
+            .balanceTypePublisher
             .receive(on: DispatchQueue.main)
-            // We need this debounce to prevent initial sequential state updates that can skip `loading` state
-            .debounce(for: 0.1, scheduler: DispatchQueue.main)
-            .sink(receiveValue: weakify(self, forFunction: TokenItemViewModel.setupState(_:)))
+            .sink(receiveValue: { [weak self] type in
+                self?.setupBalance(type)
+            })
+            .store(in: &bag)
+
+        infoProvider
+            .fiatBalanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] type in
+                self?.setupFiatBalance(type)
+            })
             .store(in: &bag)
 
         infoProvider.actionsUpdatePublisher
@@ -113,12 +131,7 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
 
         infoProvider.isStakedPublisher
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] isStaked in
-                guard let self else { return }
-                self.isStaked = isStaked
-                // balances may be updated on changing staking state
-                setupState(infoProvider.tokenItemState)
-            })
+            .assign(to: \.isStaked, on: self, ownership: .weak)
             .store(in: &bag)
     }
 
@@ -126,19 +139,17 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         switch state {
         case .noDerivation:
             missingDerivation = true
-            networkUnreachable = false
-            updateBalances()
+//            networkUnreachable = false
             updatePriceChange()
         case .networkError:
             missingDerivation = false
-            networkUnreachable = true
+//            networkUnreachable = true
         case .notLoaded:
             missingDerivation = false
-            networkUnreachable = false
+//            networkUnreachable = false
         case .loaded, .noAccount:
             missingDerivation = false
-            networkUnreachable = false
-            updateBalances()
+//            networkUnreachable = false
             updatePriceChange()
         case .loading:
             break
@@ -152,9 +163,36 @@ final class TokenItemViewModel: ObservableObject, Identifiable {
         hasPendingTransactions = infoProvider.hasPendingTransactions
     }
 
-    private func updateBalances() {
-        balanceCrypto = .loaded(text: .string(infoProvider.balance))
-        balanceFiat = .loaded(text: .string(infoProvider.fiatBalance))
+    private func setupBalance(_ type: FormattedTokenBalanceType) {
+        AppLog.shared.debug("crypto \(tokenIcon.name) ->>> \(type)")
+        switch type {
+        case .loading(.empty):
+            balanceCrypto = .loading(cached: .none)
+        case .loading(.cache(let cached)):
+            balanceCrypto = .loading(cached: .string(cached.balance))
+        case .failure(.cache(let cached)):
+            balanceCrypto = .failed(cached: .string(cached.balance))
+        case .failure(.empty(let formatted)):
+            balanceCrypto = .loaded(text: .string(formatted))
+        case .loaded(let balance):
+            balanceCrypto = .loaded(text: .string(balance))
+        }
+    }
+
+    private func setupFiatBalance(_ type: FormattedTokenBalanceType) {
+        AppLog.shared.debug("fiat \(tokenIcon.name) ->>> \(type)")
+        switch type {
+        case .loading(.empty):
+            balanceFiat = .loading(cached: .none)
+        case .loading(.cache(let cached)):
+            balanceFiat = .loading(cached: .string(cached.balance))
+        case .failure(.cache(let cached)):
+            balanceFiat = .failed(cached: .string(cached.balance), withIcon: true)
+        case .failure(.empty(let formatted)):
+            balanceFiat = .loaded(text: .string(formatted))
+        case .loaded(let balance):
+            balanceFiat = .loaded(text: .string(balance))
+        }
     }
 
     private func updatePriceChange() {

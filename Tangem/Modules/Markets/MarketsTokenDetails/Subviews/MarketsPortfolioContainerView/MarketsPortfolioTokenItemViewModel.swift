@@ -100,6 +100,22 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
             .sink(receiveValue: weakify(self, forFunction: MarketsPortfolioTokenItemViewModel.setupState(_:)))
             .store(in: &bag)
 
+        tokenItemInfoProvider
+            .balanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] type in
+                self?.setupBalance(type)
+            })
+            .store(in: &bag)
+
+        tokenItemInfoProvider
+            .fiatBalanceTypePublisher
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [weak self] type in
+                self?.setupFiatBalance(type)
+            })
+            .store(in: &bag)
+
         tokenItemInfoProvider.actionsUpdatePublisher
             .receive(on: DispatchQueue.main)
             .sink { [weak self] in
@@ -113,7 +129,6 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         case .noDerivation:
             missingDerivation = true
             networkUnreachable = false
-            updateBalances()
         case .networkError:
             missingDerivation = false
             networkUnreachable = true
@@ -123,7 +138,6 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         case .loaded, .noAccount:
             missingDerivation = false
             networkUnreachable = false
-            updateBalances()
         case .loading:
             break
         }
@@ -144,8 +158,29 @@ class MarketsPortfolioTokenItemViewModel: ObservableObject, Identifiable {
         ) ?? []
     }
 
-    private func updateBalances() {
-        balanceCrypto = .loaded(text: tokenItemInfoProvider.balance)
-        balanceFiat = .loaded(text: tokenItemInfoProvider.fiatBalance)
+    private func setupBalance(_ type: FormattedTokenBalanceType) {
+        switch type {
+        case .loading:
+            break
+        case .failure(.cache(let cached)): // TODO: add cached on Markets (?)
+            balanceCrypto = .loaded(text: cached.balance)
+        case .failure(.empty(let formatted)):
+            balanceCrypto = .loaded(text: formatted)
+        case .loaded(let balance):
+            balanceCrypto = .loaded(text: balance)
+        }
+    }
+
+    private func setupFiatBalance(_ type: FormattedTokenBalanceType) {
+        switch type {
+        case .loading:
+            break
+        case .failure(.cache(let cached)): // TODO: add cached on Markets (?)
+            balanceFiat = .loaded(text: cached.balance)
+        case .failure(.empty(let formatted)):
+            balanceFiat = .loaded(text: formatted)
+        case .loaded(let balance):
+            balanceFiat = .loaded(text: balance)
+        }
     }
 }

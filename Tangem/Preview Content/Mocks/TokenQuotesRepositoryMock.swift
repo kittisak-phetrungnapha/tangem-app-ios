@@ -21,7 +21,8 @@ class TokenQuotesRepositoryMock: TokenQuotesRepository, TokenQuotesRepositoryUpd
             priceChange24h: 0.3,
             priceChange7d: 3.3,
             priceChange30d: 9.3,
-            currencyCode: "USD"
+            currencyCode: "USD",
+            date: .now
         )
     }
 

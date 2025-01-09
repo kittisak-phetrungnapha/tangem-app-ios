@@ -22,6 +22,8 @@ class TokenWithoutDerivationInfoProvider: TokenItemInfoProvider {
 
     var tokenItemState: TokenItemViewState = .noDerivation
     var tokenItemStatePublisher: AnyPublisher<TokenItemViewState, Never> { .just(output: tokenItemState) }
+    var balanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { .just(output: .loaded("-")) }
+    var fiatBalanceTypePublisher: AnyPublisher<FormattedTokenBalanceType, Never> { .just(output: .loaded("-")) }
     var actionsUpdatePublisher: AnyPublisher<Void, Never> { .just(output: ()) }
     var isStakedPublisher: AnyPublisher<Bool, Never> { .just(output: false) }
 

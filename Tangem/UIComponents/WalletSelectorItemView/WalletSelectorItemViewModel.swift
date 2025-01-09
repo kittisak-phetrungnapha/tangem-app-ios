@@ -21,7 +21,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
     let isUserWalletLocked: Bool
 
     private let userWalletNamePublisher: AnyPublisher<String, Never>
-    private let totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never>
+    private let totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>
     private let cardImagePublisher: AnyPublisher<CardImageResult, Never>
 
     private var onTapWallet: ((UserWalletId) -> Void)?
@@ -37,7 +37,7 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
         cardsCount: Int,
         isUserWalletLocked: Bool,
         userWalletNamePublisher: AnyPublisher<String, Never>,
-        totalBalancePublisher: AnyPublisher<LoadingValue<TotalBalance>, Never>,
+        totalBalancePublisher: AnyPublisher<TotalBalanceState, Never>,
         cardImagePublisher: AnyPublisher<CardImageResult, Never>,
         isSelected: Bool,
         didTapWallet: ((UserWalletId) -> Void)?
@@ -81,17 +81,18 @@ class WalletSelectorItemViewModel: ObservableObject, Identifiable {
                 }
 
                 switch result {
+                case .empty:
+                    viewModel.balanceState = .loaded(text: BalanceFormatter.defaultEmptyBalanceString)
                 case .loading:
                     viewModel.balanceState = .loading
-                case .loaded(let totalBalance):
-                    guard totalBalance.allTokensBalancesIncluded else {
-                        viewModel.balanceState = .loaded(text: BalanceFormatter.defaultEmptyBalanceString)
-                        return
-                    }
-
-                    let formatted = viewModel.balanceFormatter.formatFiatBalance(totalBalance.balance)
+                case .loaded(let balance):
+                    let formatted = viewModel.balanceFormatter.formatFiatBalance(balance)
                     viewModel.balanceState = .loaded(text: formatted)
-                case .failedToLoad:
+                case .failed(cached: .some(let cached), _):
+                    // TODO: Cached
+                    let formatted = viewModel.balanceFormatter.formatFiatBalance(cached)
+                    viewModel.balanceState = .loaded(text: formatted)
+                case .failed(cached: .none, _):
                     viewModel.balanceState = .loaded(text: Localization.commonUnreachable)
                 }
             }

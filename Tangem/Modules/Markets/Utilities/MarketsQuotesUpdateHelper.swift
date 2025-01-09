@@ -37,7 +37,8 @@ struct CommonMarketsQuotesUpdateHelper: MarketsQuotesUpdateHelper {
                 priceChange24h: $0.priceChangePercentage[MarketsPriceIntervalType.day.marketsListId],
                 priceChange7d: $0.priceChangePercentage[MarketsPriceIntervalType.week.marketsListId],
                 priceChange30d: $0.priceChangePercentage[MarketsPriceIntervalType.month.marketsListId],
-                currencyCode: baseCurrencyCode
+                currencyCode: baseCurrencyCode,
+                date: .now
             )
         }
 
@@ -51,7 +52,8 @@ struct CommonMarketsQuotesUpdateHelper: MarketsQuotesUpdateHelper {
             priceChange24h: marketToken.priceChangePercentage[MarketsPriceIntervalType.day.rawValue],
             priceChange7d: marketToken.priceChangePercentage[MarketsPriceIntervalType.week.rawValue],
             priceChange30d: marketToken.priceChangePercentage[MarketsPriceIntervalType.month.rawValue],
-            currencyCode: baseCurrencyCode
+            currencyCode: baseCurrencyCode,
+            date: .now
         )
 
         quotesRepositoryUpdater.saveQuote(quote)

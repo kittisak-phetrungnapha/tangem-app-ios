@@ -24,7 +24,14 @@ class WalletModel {
 
     /// Listen for fiat and balance changes. This publisher will not be called if the is nothing changed. Use `update(silent:)` for waiting for update
     var walletDidChangePublisher: AnyPublisher<WalletModel.State, Never> {
-        _walletDidChangePublisher.eraseToAnyPublisher()
+        Publishers.CombineLatest4(
+            _state.removeDuplicates(),
+            _rate.filter { !$0.isLoading }.removeDuplicates(),
+            walletManager.walletPublisher,
+            stakingManagerStatePublisher
+        )
+        .map { $0.0 }
+        .eraseToAnyPublisher()
     }
 
     var state: State {
@@ -35,11 +42,11 @@ class WalletModel {
         _state.eraseToAnyPublisher()
     }
 
-    var rate: LoadingResult<Rate?, Never> {
+    var rate: LoadingResult<WalletModel.Rate?, Never> {
         _rate.value
     }
 
-    var ratePublisher: AnyPublisher<LoadingResult<Rate?, Never>, Never> {
+    var ratePublisher: AnyPublisher<LoadingResult<WalletModel.Rate?, Never>, Never> {
         _rate.eraseToAnyPublisher()
     }
 
@@ -208,7 +215,7 @@ class WalletModel {
     private var bag = Set<AnyCancellable>()
     private var updatePublisher: PassthroughSubject<State, Never>?
     private var updateQueue = DispatchQueue(label: "walletModel_update_queue")
-    private var _walletDidChangePublisher: CurrentValueSubject<State, Never> = .init(.created)
+
     private var _state: CurrentValueSubject<State, Never> = .init(.created)
     private var _rate: CurrentValueSubject<LoadingResult<Rate?, Never>, Never> = .init(.loading)
     private var _localPendingTransactionSubject: PassthroughSubject<Void, Never> = .init()
@@ -237,6 +244,7 @@ class WalletModel {
         self.sendAvailabilityProvider = sendAvailabilityProvider
 
         bind()
+        fillQuote()
         performHealthCheckIfNeeded(shouldPerform: shouldPerformHealthCheck)
     }
 
@@ -256,28 +264,22 @@ class WalletModel {
                 currencyId.flatMap { quotes[$0]?.price }
             }
             .removeDuplicates()
+            // Filter for that don't clean cached value
+            .compactMap { $0 }
             .sink { [weak self] rate in
-                self?._rate.send(.success(rate.map { .actual($0) }))
+                self?._rate.send(.success(.actual(rate)))
             }
+
             .store(in: &bag)
+    }
 
-        let filteredRate = _rate.filter { $0 != .loading }.removeDuplicates()
-
-        if let stakingManager {
-            _state
-                .removeDuplicates()
-                .combineLatest(filteredRate, walletManager.walletPublisher, stakingManager.statePublisher)
-                .map { $0.0 }
-                .assign(to: \._walletDidChangePublisher.value, on: self, ownership: .weak)
-                .store(in: &bag)
-        } else {
-            _state
-                .removeDuplicates()
-                .combineLatest(filteredRate, walletManager.walletPublisher)
-                .map { $0.0 }
-                .assign(to: \._walletDidChangePublisher.value, on: self, ownership: .weak)
-                .store(in: &bag)
+    private func fillQuote() {
+        guard let quote = quotesRepository.quote(for: tokenItem) else {
+            return
         }
+
+        AppLog.shared.debug("\(self) has cached quote \(quote.price)")
+        _rate.send(.success(.cached(.init(balance: quote.price, date: quote.date))))
     }
 
     private func performHealthCheckIfNeeded(shouldPerform: Bool) {
@@ -323,6 +325,7 @@ class WalletModel {
             .updatePublisher()
             .combineLatest(loadQuotes(), updateStakingManagerState()) { state, _, _ in state }
             .receive(on: updateQueue)
+//            .delay(for: 10, scheduler: updateQueue)
             .sink { [weak self] newState in
                 guard let self else { return }
 
@@ -407,7 +410,13 @@ class WalletModel {
                 }
 
                 AppLog.shared.debug("🔄 Quotes wasn't loaded for \(walletModel)")
-                walletModel._rate.send(.success(nil))
+                switch walletModel._rate.value {
+                case .success(.cached):
+                    // Do nothing, save cached value
+                    break
+                default:
+                    walletModel._rate.send(.success(nil))
+                }
             })
             .mapToVoid()
             .eraseToAnyPublisher()

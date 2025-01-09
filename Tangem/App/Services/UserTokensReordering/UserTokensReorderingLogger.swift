@@ -51,8 +51,8 @@ struct UserTokensReorderingLogger {
             objectDescription: objectDescription,
             userInfo: [
                 "state": description(for: walletModel?.state),
-                "fiatValue": description(for: walletModel?.fiatValue),
-                "balanceValue": description(for: walletModel?.balanceValue),
+                "fiatValue": description(for: walletModel?.combineFiatBalanceProvider.balanceType.value),
+                "balanceValue": description(for: walletModel?.combineBalanceProvider.balanceType.value),
                 "canUseQuotes": description(for: walletModel?.canUseQuotes),
                 "isCustom": description(for: walletModel?.isCustom),
             ]
@@ -67,8 +67,8 @@ struct UserTokensReorderingLogger {
         switch state {
         case .created:
             return "created"
-        case .loaded:
-            return "loaded"
+        case .loaded(let balance):
+            return "loaded balance: \(balance)"
         case .loading:
             return "loading"
         case .noAccount:

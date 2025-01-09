@@ -15,8 +15,7 @@ final class MainHeaderViewModel: ObservableObject {
     @Published private(set) var cardImage: ImageType?
     @Published private(set) var userWalletName: String = ""
     @Published private(set) var subtitleInfo: MainHeaderSubtitleInfo = .empty
-    @Published private(set) var balance: LoadableTokenBalanceView.State = .empty
-
+    @Published private(set) var balance: LoadableTokenBalanceView.State = .loading()
     @Published var isLoadingSubtitle: Bool = true
 
     var subtitleContainsSensitiveInfo: Bool {
@@ -67,21 +66,25 @@ final class MainHeaderViewModel: ObservableObject {
 
         balanceProvider.balanceProvider
             .receive(on: DispatchQueue.main)
-            .debounce(for: 0.2, scheduler: DispatchQueue.main) // Hide skeleton and apply state with delay, mimic current behavior
-            .sink { [weak self] newValue in
-                guard let self else {
-                    return
-                }
+            // Hide skeleton and apply state with delay, mimic current behaviour
+            .debounce(for: 0.2, scheduler: DispatchQueue.main)
+            .sink { [weak self] totalBalance in
+                AppLog.shared.debug("Wallet name: \(String(describing: self?.userWalletName)) set total balance to \(totalBalance)")
+                self?.balance = totalBalance
 
-                switch newValue {
-                case .loading:
-                    balance = .loading()
-                case .loaded(let balance):
-                    self.balance = .loaded(text: .attributed(balance))
-                case .failedToLoad(let error):
-                    AppLog.shared.debug("Failed to load total balance. Reason: \(error)")
-                    balance = .empty
-                }
+//                switch newValue {
+//                case .loading:
+//                    isLoadingFiatBalance = true
+//                case .success(.some(let totalBalance)):
+//                    AppLog.shared.debug("Wallet name: \(userWalletName) set total balance to \(String(totalBalance.characters))")
+//                    isLoadingFiatBalance = false
+//                    balance = totalBalance
+//
+//                case .success(.none):
+//                    AppLog.shared.debug("Wallet name: \(userWalletName) set total balance to empty string")
+//                    isLoadingFiatBalance = false
+//                    balance = .init(BalanceFormatter.defaultEmptyBalanceString)
+//                }
             }
             .store(in: &bag)
     }

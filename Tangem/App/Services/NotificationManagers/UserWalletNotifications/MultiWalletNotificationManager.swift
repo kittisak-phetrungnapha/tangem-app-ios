@@ -11,70 +11,43 @@ import Combine
 
 final class MultiWalletNotificationManager {
     private let analyticsService = NotificationsAnalyticsService()
-    private let walletModelsManager: WalletModelsManager
+    private let totalBalanceProvider: TotalBalanceProviding
 
     private let notificationInputsSubject: CurrentValueSubject<[NotificationViewInput], Never> = .init([])
     private var updateSubscription: AnyCancellable?
 
-    init(walletModelsManager: WalletModelsManager, contextDataProvider: AnalyticsContextDataProvider?) {
-        self.walletModelsManager = walletModelsManager
+    init(totalBalanceProvider: TotalBalanceProviding, contextDataProvider: AnalyticsContextDataProvider?) {
+        self.totalBalanceProvider = totalBalanceProvider
 
         analyticsService.setup(with: self, contextDataProvider: contextDataProvider)
         bind()
     }
 
     private func bind() {
-        updateSubscription = walletModelsManager.walletModelsPublisher
-            .removeDuplicates()
-            .flatMap { walletModels in
-                let coinsOnlyModels = walletModels.filter { !$0.tokenItem.isToken }
-                return Publishers.MergeMany(coinsOnlyModels.map { $0.walletDidChangePublisher })
-                    .map { _ in coinsOnlyModels }
-                    .filter { walletModels in
-                        walletModels.allConforms { !$0.state.isLoading }
-                    }
-            }
-            .sink { [weak self] walletModels in
-                let unreachableNetworks = walletModels.filter {
-                    if case .binance = $0.blockchainNetwork.blockchain {
-                        return false
-                    }
-
-                    return $0.state.isBlockchainUnreachable
-                }
-
-                guard !unreachableNetworks.isEmpty else {
-                    self?.removeSomeNetworksUnreachable()
-                    return
-                }
-
-                self?.setupSomeNetworksUnreachable(unreachableNetworks)
+        updateSubscription = totalBalanceProvider
+            .totalBalancePublisher
+            .withWeakCaptureOf(self)
+            .sink { manager, state in
+                manager.setup(state: state)
             }
     }
 
-    private func removeSomeNetworksUnreachable() {
-        notificationInputsSubject.value.removeAll {
-            guard let event = $0.settings.event as? TokenNotificationEvent else {
-                return false
-            }
-            switch event {
-            case .someNetworksUnreachable: return true
-            default: return false
-            }
+    private func setup(state: TotalBalanceState) {
+        switch state {
+        case .empty, .loading:
+            break
+        case .failed(cached: .some(let cached), _):
+            show(event: .someTokenBalancesNotUpdated)
+        case .failed(cached: .none, let unreachableNetworks):
+            show(event: .someNetworksUnreachable(currencySymbols: unreachableNetworks.map(\.currencySymbol)))
+        case .loaded(balance: let balance):
+            show(event: .none)
         }
     }
 
-    private func setupSomeNetworksUnreachable(_ unreachableNetworks: [WalletModel]) {
-        let factory = NotificationsFactory()
-        notificationInputsSubject.send(
-            [
-                factory.buildNotificationInput(
-                    for: TokenNotificationEvent.someNetworksUnreachable(
-                        currencySymbols: unreachableNetworks.map(\.tokenItem.currencySymbol)
-                    )
-                ),
-            ]
-        )
+    private func show(event: MultiWalletNotificationEvent?) {
+        let input = event.map { NotificationsFactory().buildNotificationInput(for: $0) }
+        notificationInputsSubject.value = input.map { [$0] } ?? []
     }
 }
 

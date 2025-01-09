@@ -18,16 +18,19 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
     @Published var actionSheet: ActionSheetBinder?
     @Published var bannerNotificationInputs: [NotificationViewInput] = []
 
-    private(set) var balanceWithButtonsModel: BalanceWithButtonsViewModel!
+    private(set) lazy var balanceWithButtonsModel = BalanceWithButtonsViewModel(
+        buttonsPublisher: $actionButtons.eraseToAnyPublisher(),
+        balanceProvider: self
+    )
+
     private(set) lazy var tokenDetailsHeaderModel: TokenDetailsHeaderViewModel = .init(tokenItem: walletModel.tokenItem)
     @Published private(set) var activeStakingViewData: ActiveStakingViewData?
 
     private weak var coordinator: TokenDetailsRoutable?
     private let bannerNotificationManager: NotificationManager?
     private let xpubGenerator: XPUBGenerator?
-
-    private let balances = CurrentValueSubject<LoadingValue<BalanceWithButtonsViewModel.Balances>, Never>(.loading)
-
+    private let balanceConverter = BalanceConverter()
+    private let balanceFormatter = BalanceFormatter()
     private var bag = Set<AnyCancellable>()
 
     var iconUrl: URL? {
@@ -72,11 +75,6 @@ final class TokenDetailsViewModel: SingleTokenBaseViewModel, ObservableObject {
         )
         notificationManager.setupManager(with: self)
         bannerNotificationManager?.setupManager(with: self)
-
-        balanceWithButtonsModel = .init(
-            balancesPublisher: balances.eraseToAnyPublisher(),
-            buttonsPublisher: $actionButtons.eraseToAnyPublisher()
-        )
 
         prepareSelf()
     }
@@ -222,24 +220,11 @@ extension TokenDetailsViewModel {
 
 private extension TokenDetailsViewModel {
     private func prepareSelf() {
-        updateBalance(walletModelState: walletModel.state)
         tokenNotificationInputs = notificationManager.notificationInputs
         bind()
     }
 
     private func bind() {
-        Publishers.CombineLatest(
-            walletModel.walletDidChangePublisher,
-            walletModel.stakingManagerStatePublisher
-        )
-        .filter { $1 != .loading }
-        .receive(on: DispatchQueue.main)
-        .receiveValue { [weak self] newState, _ in
-            AppLog.shared.debug("Token details receive new wallet model state: \(newState)")
-            self?.updateBalance(walletModelState: newState)
-        }
-        .store(in: &bag)
-
         bannerNotificationManager?.notificationPublisher
             .receive(on: DispatchQueue.main)
             .removeDuplicates()
@@ -255,20 +240,6 @@ private extension TokenDetailsViewModel {
             .store(in: &bag)
     }
 
-    private func updateBalance(walletModelState: WalletModel.State) {
-        switch walletModelState {
-        case .created, .loading:
-            balances.send(.loading)
-        case .loaded, .noAccount:
-            balances.send(.loaded(.init(all: walletModel.allBalanceFormatted, available: walletModel.availableBalanceFormatted)))
-        case .failed(let message):
-            balances.send(.failedToLoad(error: message))
-        case .noDerivation:
-            // User can't reach this screen without derived keys
-            balances.send(.failedToLoad(error: CommonError.notImplemented))
-        }
-    }
-
     private func updateStaking(state: StakingManagerState) {
         switch state {
         case .loading:
@@ -279,24 +250,44 @@ private extension TokenDetailsViewModel {
         case .loadingError, .temporaryUnavailable:
             activeStakingViewData = .init(balance: .loadingError, rewards: .none)
         case .staked(let staked):
-            let rewards: ActiveStakingViewData.RewardsState? = {
-                switch (staked.yieldInfo.rewardClaimingType, walletModel.stakedRewards.fiat) {
-                case (.auto, _):
-                    return nil
-                case (.manual, .none):
-                    return .noRewards
-                case (.manual, .some):
-                    return .rewardsToClaim(walletModel.stakedRewardsFormatted.fiat)
-                }
-            }()
+            let rewards = mapToRewardsState(staked: staked)
+            let balance = mapToStakedBalance(staked: staked)
 
             activeStakingViewData = ActiveStakingViewData(
-                balance: .balance(walletModel.stakedWithPendingBalanceFormatted, action: { [weak self] in
-                    self?.openStaking()
-                }),
+                balance: .balance(balance) { [weak self] in self?.openStaking() },
                 rewards: rewards
             )
         }
+    }
+
+    func mapToRewardsState(staked: StakingManagerState.Staked) -> ActiveStakingViewData.RewardsState? {
+        switch (staked.yieldInfo.rewardClaimingType, staked.balances.rewards().sum()) {
+        case (.auto, _):
+            return nil
+        case (.manual, .zero):
+            return .noRewards
+        case (.manual, let rewards):
+            let stakedRewardsFiat: Decimal? = walletModel.tokenItem.currencyId.flatMap { currencyId in
+                balanceConverter.convertToFiat(rewards, currencyId: currencyId)
+            }
+            let formatted = balanceFormatter.formatFiatBalance(stakedRewardsFiat)
+            return .rewardsToClaim(formatted)
+        }
+    }
+
+    func mapToStakedBalance(staked: StakingManagerState.Staked) -> WalletModel.BalanceFormatted {
+        let stakedWithPendingBalance = staked.balances.stakes().sum()
+        let stakedWithPendingBalanceFormatted = balanceFormatter.formatCryptoBalance(stakedWithPendingBalance, currencyCode: walletModel.tokenItem.currencySymbol)
+
+        let stakedWithPendingFiatBalance = walletModel.tokenItem.currencyId.flatMap { currencyId in
+            balanceConverter.convertToFiat(stakedWithPendingBalance, currencyId: currencyId)
+        }
+        let stakedWithPendingFiatBalanceFormatted = balanceFormatter.formatFiatBalance(stakedWithPendingFiatBalance)
+
+        return .init(
+            crypto: stakedWithPendingBalanceFormatted,
+            fiat: stakedWithPendingFiatBalanceFormatted
+        )
     }
 }
 
@@ -319,7 +310,7 @@ private extension TokenDetailsViewModel {
     }
 }
 
-// MARK: - SingleTokenNotificationManagerInteractionDelegate protocol conformance
+// MARK: - SingleTokenNotificationManagerInteractionDelegate
 
 extension TokenDetailsViewModel: SingleTokenNotificationManagerInteractionDelegate {
     func confirmDiscardingUnfulfilledAssetRequirements(
@@ -328,5 +319,53 @@ extension TokenDetailsViewModel: SingleTokenNotificationManagerInteractionDelega
     ) {
         let alertBuilder = SingleTokenAlertBuilder()
         alert = alertBuilder.fulfillAssetRequirementsDiscardedAlert(confirmationAction: confirmationAction)
+    }
+}
+
+// MARK: - BalanceWithButtonsViewModelBalanceProvider
+
+extension TokenDetailsViewModel: BalanceWithButtonsViewModelBalanceProvider {
+    var totalCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        walletModel
+            .combineBalanceProvider
+            .formattedBalanceTypePublisher
+            .withWeakCaptureOf(self)
+            .map { $0.mapToBalanceWithButtonsViewModelBalanceResult(balanceType: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    var totalFiatBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        walletModel
+            .combineFiatBalanceProvider
+            .formattedBalanceTypePublisher
+            .withWeakCaptureOf(self)
+            .map { $0.mapToBalanceWithButtonsViewModelBalanceResult(balanceType: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    var availableCryptoBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        walletModel
+            .availableBalanceProvider
+            .formattedBalanceTypePublisher
+            .withWeakCaptureOf(self)
+            .map { $0.mapToBalanceWithButtonsViewModelBalanceResult(balanceType: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    var availableFiatBalancePublisher: AnyPublisher<BalanceWithButtonsViewModel.BalanceResult, Never> {
+        walletModel
+            .availableFiatBalanceProvider
+            .formattedBalanceTypePublisher
+            .withWeakCaptureOf(self)
+            .map { $0.mapToBalanceWithButtonsViewModelBalanceResult(balanceType: $1) }
+            .eraseToAnyPublisher()
+    }
+
+    private func mapToBalanceWithButtonsViewModelBalanceResult(balanceType: FormattedTokenBalanceType) -> BalanceWithButtonsViewModel.BalanceResult {
+        switch balanceType {
+        case .loading: .loading
+        case .failure(let cached): .success(cached.value)
+        case .loaded(let value): .success(value)
+        }
     }
 }
