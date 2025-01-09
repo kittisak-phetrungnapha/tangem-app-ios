@@ -23,7 +23,7 @@ struct BalanceWithButtonsView: View {
                     balancePicker
                 }
 
-                BalanceTitleView(balance: viewModel.fiatBalance, isLoading: viewModel.isLoadingFiatBalance)
+                BalanceTitleView(state: viewModel.fiatBalance)
 
                 SensitiveText(viewModel.cryptoBalance)
                     .skeletonable(isShown: viewModel.isLoadingBalance, size: .init(width: 70, height: 12))

@@ -267,26 +267,26 @@ extension VisaWalletModel: VisaWalletMainHeaderSubtitleDataSource {
 }
 
 extension VisaWalletModel: MainHeaderBalanceProvider {
-    var balanceProvider: AnyPublisher<LoadingResult<AttributedString?, Never>, Never> {
+    var balanceProvider: AnyPublisher<LoadableTokenBalanceView.State, Never> {
         stateSubject.combineLatest(balancesSubject)
             .map { [weak self] state, balances in
                 guard let self else {
-                    return .loading
+                    return .loading()
                 }
 
                 switch state {
                 case .notInitialized, .loading:
-                    return .loading
+                    return .loading()
                 case .failedToInitialize(let error):
-                    return .success(.none)
+                    return .failed(cached: .string(BalanceFormatter.defaultEmptyBalanceString))
                 case .idle:
                     if let balances, let tokenItem {
                         let balanceFormatter = BalanceFormatter()
                         let formattedBalance = balanceFormatter.formatCryptoBalance(balances.available, currencyCode: tokenItem.currencySymbol)
                         let formattedForMain = balanceFormatter.formatAttributedTotalBalance(fiatBalance: formattedBalance)
-                        return .success(formattedForMain)
+                        return .loaded(text: .attributed(formattedForMain))
                     } else {
-                        return .loading
+                        return .loading()
                     }
                 }
             }

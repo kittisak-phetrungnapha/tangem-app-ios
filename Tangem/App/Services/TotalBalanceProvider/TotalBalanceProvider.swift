@@ -121,12 +121,18 @@ private extension TotalBalanceProvider {
 
         AppLog.shared.debug("balances ->> \(balances.map { ($0.item.name, $0.balance) })")
 
-        let cachedBalance = cachedBalance(balances: balances.map(\.balance))
+        let cachedBalances = cachedBalances(balances: balances.map(\.balance))
         let hasLoading = balances.contains { $0.balance.isLoading }
 
+        // Show it in loading state if only one is in loading process
         if hasLoading {
-            // Show it in loading state if only one is in loading process
-            return .loading(cached: cachedBalance)
+            // Cached only if all have cached value
+            if cachedBalances.count == balances.count {
+                let cachedBalance = cachedBalances.reduce(0, +)
+                return .loading(cached: cachedBalance)
+            }
+
+            return .loading(cached: .none)
         }
 
         let emptyBalances = balances.filter { $0.balance.isEmpty(for: .noData) }
@@ -141,6 +147,7 @@ private extension TotalBalanceProvider {
         if hasError {
             // If has error and cached balance show failed state with cached balances
             // Otherwise just show `empty`
+            let cachedBalance = cachedBalances.reduce(0, +)
             return .failed(cached: cachedBalance, failedItems: failureBalances.map(\.item))
         }
 
@@ -198,22 +205,25 @@ private extension TotalBalanceProvider {
         }
     }
 
-    func cachedBalance(balances: [TokenBalanceType]) -> Decimal? {
+    func cachedBalances(balances: [TokenBalanceType]) -> [Decimal] {
         let cachedBalances = balances.compactMap { balanceType in
             switch balanceType {
+            case .empty(.custom):
+                return Decimal(0)
             case .loading(.some(let cached)), .failure(.some(let cached)):
-                return cached
+                return cached.balance
+            case .loaded(let balance):
+                return balance
             default:
                 return nil
             }
         }
 
-        if cachedBalances.isEmpty {
-            return nil
-        }
+//        if cachedBalances.isEmpty {
+//            return nil
+//        }
 
-        let cachedBalance = cachedBalances.reduce(0) { $0 + $1.balance }
-        return cachedBalance
+        return cachedBalances
     }
 
     func loadedBalance(balances: [(item: TokenItem, balance: TokenBalanceType)]) -> Decimal? {

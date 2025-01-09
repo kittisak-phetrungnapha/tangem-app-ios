@@ -34,43 +34,20 @@ final class MultiWalletNotificationManager {
 
     private func setup(state: TotalBalanceState) {
         switch state {
-        case .failed(cached: .some(let cached), _):
-            // TODO: Show cached
-            removeSomeNetworksUnreachable()
-        case .failed(cached: .none, let unreachableNetworks):
-            setupSomeNetworksUnreachable(unreachableNetworks)
-        case .empty:
-            removeSomeNetworksUnreachable()
-        case .loading(cached: let cached):
+        case .empty, .loading:
             break
+        case .failed(cached: .some(let cached), _):
+            show(event: .someTokenBalancesNotUpdated)
+        case .failed(cached: .none, let unreachableNetworks):
+            show(event: .someNetworksUnreachable(currencySymbols: unreachableNetworks.map(\.currencySymbol)))
         case .loaded(balance: let balance):
-            removeSomeNetworksUnreachable()
+            show(event: .none)
         }
     }
 
-    private func removeSomeNetworksUnreachable() {
-        notificationInputsSubject.value.removeAll {
-            guard let event = $0.settings.event as? TokenNotificationEvent else {
-                return false
-            }
-            switch event {
-            case .someNetworksUnreachable: return true
-            default: return false
-            }
-        }
-    }
-
-    private func setupSomeNetworksUnreachable(_ unreachableNetworks: [TokenItem]) {
-        let factory = NotificationsFactory()
-        notificationInputsSubject.send(
-            [
-                factory.buildNotificationInput(
-                    for: TokenNotificationEvent.someNetworksUnreachable(
-                        currencySymbols: unreachableNetworks.map(\.currencySymbol)
-                    )
-                ),
-            ]
-        )
+    private func show(event: MultiWalletNotificationEvent?) {
+        let input = event.map { NotificationsFactory().buildNotificationInput(for: $0) }
+        notificationInputsSubject.value = input.map { [$0] } ?? []
     }
 }
 

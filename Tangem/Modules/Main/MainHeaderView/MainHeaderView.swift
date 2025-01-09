@@ -33,15 +33,15 @@ struct MainHeaderView: View {
                         .cornerRadiusContinuous(6)
                         .padding(.vertical, 5)
                 } else {
-                    BalanceTitleView(balance: viewModel.balance, isLoading: viewModel.isLoadingFiatBalance)
-                        .overlay(
-                            SensitiveText(viewModel.balance)
-                                .multilineTextAlignment(.leading)
-                                .fixedSize(horizontal: true, vertical: true)
-                                .readGeometry(\.size, bindTo: $balanceTextSize)
-                                .opacity(0.0),
-                            alignment: .leading
-                        )
+                    BalanceTitleView(state: viewModel.balance)
+//                        .overlay(
+//                            SensitiveText(viewModel.balance)
+//                                .multilineTextAlignment(.leading)
+//                                .fixedSize(horizontal: true, vertical: true)
+//                                .readGeometry(\.size, bindTo: $balanceTextSize)
+//                                .opacity(0.0),
+//                            alignment: .leading
+//                        )
                 }
 
                 Spacer(minLength: 10)

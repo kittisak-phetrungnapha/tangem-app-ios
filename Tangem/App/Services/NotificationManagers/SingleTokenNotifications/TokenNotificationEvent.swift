@@ -11,7 +11,7 @@ import SwiftUI
 
 enum TokenNotificationEvent: Hashable {
     case networkUnreachable(currencySymbol: String)
-    case someNetworksUnreachable(currencySymbols: [String])
+    case networkNotUpdated(lastUpdatedDate: Date)
     case rentFee(rentMessage: String)
     case noAccount(message: String)
     case existentialDepositWarning(message: String)
@@ -48,8 +48,8 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .networkUnreachable:
             return .string(Localization.warningNetworkUnreachableTitle)
-        case .someNetworksUnreachable:
-            return .string(Localization.warningSomeNetworksUnreachableTitle)
+        case .networkNotUpdated:
+            return .none
         case .rentFee:
             return .string(Localization.warningRentFeeTitle)
         case .noAccount:
@@ -77,8 +77,8 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         case .networkUnreachable:
             return Localization.warningNetworkUnreachableMessage
-        case .someNetworksUnreachable:
-            return Localization.warningSomeNetworksUnreachableMessage
+        case .networkNotUpdated(let date):
+            return "Last update was \(date.formatted(date: .abbreviated, time: .shortened))"
         case .rentFee(let message):
             return message
         case .noAccount(let message):
@@ -121,7 +121,7 @@ extension TokenNotificationEvent: NotificationEvent {
     var colorScheme: NotificationView.ColorScheme {
         switch self {
         case .networkUnreachable,
-             .someNetworksUnreachable,
+             .networkNotUpdated,
              .rentFee,
              .existentialDepositWarning,
              .noAccount,
@@ -140,8 +140,9 @@ extension TokenNotificationEvent: NotificationEvent {
 
     var icon: NotificationView.MessageIcon {
         switch self {
+        case .networkNotUpdated:
+            return .init(iconType: .image(Assets.failedCloud.image))
         case .networkUnreachable,
-             .someNetworksUnreachable,
              .bnbBeaconChainRetirement,
              .maticMigration:
             return .init(iconType: .image(Assets.attention.image))
@@ -168,7 +169,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .maticMigration:
             return .info
         case .networkUnreachable,
-             .someNetworksUnreachable,
+             .networkNotUpdated,
              .notEnoughFeeForTransaction,
              .bnbBeaconChainRetirement,
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
@@ -183,7 +184,7 @@ extension TokenNotificationEvent: NotificationEvent {
              .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction):
             return true
         case .networkUnreachable,
-             .someNetworksUnreachable,
+             .networkNotUpdated,
              .existentialDepositWarning,
              .notEnoughFeeForTransaction,
              .noAccount,
@@ -200,7 +201,7 @@ extension TokenNotificationEvent: NotificationEvent {
         switch self {
         // One notification with button action will be added later
         case .networkUnreachable,
-             .someNetworksUnreachable,
+             .networkNotUpdated,
              .rentFee,
              .existentialDepositWarning,
              .noAccount,
@@ -271,7 +272,7 @@ extension TokenNotificationEvent {
     var analyticsEvent: Analytics.Event? {
         switch self {
         case .networkUnreachable: return .tokenNoticeNetworkUnreachable
-        case .someNetworksUnreachable: return .mainNoticeNetworksUnreachable
+        case .networkNotUpdated: return nil
         case .rentFee: return nil
         case .noAccount: return nil
         case .existentialDepositWarning: return nil
@@ -291,8 +292,6 @@ extension TokenNotificationEvent {
             return [.token: currencySymbol]
         case .notEnoughFeeForTransaction(let configuration):
             return [.token: configuration.eventConfiguration.feeAmountTypeCurrencySymbol]
-        case .someNetworksUnreachable(let networks):
-            return [.tokens: networks.joined(separator: ", ")]
         case .hasUnfulfilledRequirements(configuration: .incompleteKaspaTokenTransaction(let revealTransaction)):
             return [.token: revealTransaction.currencySymbol]
         case .rentFee,
@@ -302,7 +301,8 @@ extension TokenNotificationEvent {
              .hasUnfulfilledRequirements(configuration: .missingHederaTokenAssociation),
              .staking,
              .manaLevel,
-             .maticMigration:
+             .maticMigration,
+             .networkNotUpdated:
             return [:]
         }
     }

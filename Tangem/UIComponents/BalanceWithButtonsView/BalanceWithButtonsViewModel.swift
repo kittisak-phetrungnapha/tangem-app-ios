@@ -17,7 +17,7 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
     @Published var isLoadingFiatBalance = true
 
     @Published var cryptoBalance = ""
-    @Published var fiatBalance: AttributedString = .init(BalanceFormatter.defaultEmptyBalanceString)
+    @Published var fiatBalance: LoadableTokenBalanceView.State = .loading()
 
     @Published var buttons: [FixedSizeButtonWithIconInfo] = []
 
@@ -104,9 +104,10 @@ final class BalanceWithButtonsViewModel: ObservableObject, Identifiable {
 
         case (.success(let all), .success(let available)):
             isLoadingFiatBalance = false
-            fiatBalance = formatter.formatAttributedTotalBalance(
+            let formatted = formatter.formatAttributedTotalBalance(
                 fiatBalance: type == .all ? all : available
             )
+            fiatBalance = .loaded(text: .attributed(formatted))
         }
     }
 }

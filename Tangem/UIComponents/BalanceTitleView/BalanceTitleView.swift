@@ -9,13 +9,17 @@
 import SwiftUI
 
 struct BalanceTitleView: View {
-    let balance: AttributedString
-    let isLoading: Bool
+    let state: LoadableTokenBalanceView.State
 
     var body: some View {
-        SensitiveText(balance)
-            .multilineTextAlignment(.leading)
-            .truncationMode(.middle)
-            .skeletonable(isShown: isLoading, size: .init(width: 102, height: 24), radius: 6)
+        LoadableTokenBalanceView(
+            state: state,
+            font: Fonts.Regular.body,
+            textColor: Colors.Text.primary1,
+            loaderSize: .init(width: 102, height: 24),
+            loaderCornerRadius: 6
+        )
+        .multilineTextAlignment(.leading)
+        .truncationMode(.middle)
     }
 }
