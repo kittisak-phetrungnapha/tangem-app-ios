@@ -596,7 +596,7 @@ public indirect enum Blockchain: Equatable, Hashable {
         case .bitrock:
             return "Bitrock" + testnetSuffix
         case .sonic:
-            return "Sonic" + testnetSuffix
+            return "Sonic" + (isTestnet ? " Blaze Testnet" : "")
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
