@@ -8,9 +8,9 @@
 
 import Foundation
 import TangemSdk
-import TangemExpress
-import TangemVisa
-import TangemStaking
+import protocol TangemExpress.Logger
+import protocol TangemVisa.VisaLogger
+import protocol TangemStaking.Logger
 
 class AppLog {
     static let shared = AppLog()
@@ -38,7 +38,7 @@ class AppLog {
     }
 
     func debug<T>(_ message: @autoclosure () -> T) {
-        Log.debug(message())
+        OSLog.log(message: message())
     }
 
     // TODO: Andrey Fedorov - Get rid of this method and pass file/line as arguments to `debug` (IOS-6440)
