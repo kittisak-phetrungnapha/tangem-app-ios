@@ -21,6 +21,7 @@ class EnvironmentSetupCoordinator: CoordinatorObject {
 
     @Published var supportedBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
     @Published var stakingBlockchainsPreferencesViewModel: SupportedBlockchainsPreferencesViewModel?
+    @Published var logsViewModel: LogsViewModel?
 
     required init(
         dismissAction: @escaping Action<Void>,
@@ -56,5 +57,9 @@ extension EnvironmentSetupCoordinator: EnvironmentSetupRoutable {
             blockchainIds: StakingFeatureProvider.testableBlockchainItems.map { .init(name: $0.name, id: $0.id) }.toSet(),
             featureStorageKeyPath: \.stakingBlockchainsIds
         )
+    }
+
+    func openLogs() {
+        logsViewModel = .init()
     }
 }
