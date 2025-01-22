@@ -35,6 +35,9 @@ struct EnvironmentSetupCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.stakingBlockchainsPreferencesViewModel) {
                 SupportedBlockchainsPreferencesView(viewModel: $0)
             }
+            .navigation(item: $coordinator.logsViewModel) {
+                LogsView(viewModel: $0)
+            }
     }
 
     @ViewBuilder
