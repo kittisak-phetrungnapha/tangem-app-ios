@@ -2792,8 +2792,6 @@
 		EF9E2A0F2B4F0CD100418559 /* CommonExpressProviderManagerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29C82B4F0CCE00418559 /* CommonExpressProviderManagerFactory.swift */; };
 		EF9E2A102B4F0CD100418559 /* CommonExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29CA2B4F0CCE00418559 /* CommonExpressAPIProvider.swift */; };
 		EF9E2A112B4F0CD100418559 /* ExpressAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29CB2B4F0CCE00418559 /* ExpressAPIProvider.swift */; };
-		EF9E2A122B4F0CD100418559 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29CD2B4F0CCE00418559 /* Logger.swift */; };
-		EF9E2A132B4F0CD100418559 /* CommonLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29CE2B4F0CCE00418559 /* CommonLogger.swift */; };
 		EF9E2A152B4F0CD100418559 /* ExpressAPIMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29D32B4F0CCE00418559 /* ExpressAPIMapper.swift */; };
 		EF9E2A162B4F0CD100418559 /* ExpressDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29D62B4F0CCE00418559 /* ExpressDTO.swift */; };
 		EF9E2A172B4F0CD100418559 /* ExpressAuthorizationPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9E29D72B4F0CCE00418559 /* ExpressAuthorizationPlugin.swift */; };
@@ -6002,8 +6000,6 @@
 		EF9E29C82B4F0CCE00418559 /* CommonExpressProviderManagerFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonExpressProviderManagerFactory.swift; sourceTree = "<group>"; };
 		EF9E29CA2B4F0CCE00418559 /* CommonExpressAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonExpressAPIProvider.swift; sourceTree = "<group>"; };
 		EF9E29CB2B4F0CCE00418559 /* ExpressAPIProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAPIProvider.swift; sourceTree = "<group>"; };
-		EF9E29CD2B4F0CCE00418559 /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
-		EF9E29CE2B4F0CCE00418559 /* CommonLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonLogger.swift; sourceTree = "<group>"; };
 		EF9E29D32B4F0CCE00418559 /* ExpressAPIMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAPIMapper.swift; sourceTree = "<group>"; };
 		EF9E29D62B4F0CCE00418559 /* ExpressDTO.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressDTO.swift; sourceTree = "<group>"; };
 		EF9E29D72B4F0CCE00418559 /* ExpressAuthorizationPlugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressAuthorizationPlugin.swift; sourceTree = "<group>"; };
@@ -15437,7 +15433,6 @@
 				EF9E29C42B4F0CCE00418559 /* ExpressManagerMapper */,
 				EF9E29C62B4F0CCE00418559 /* ExpressProviderManagerFactory */,
 				EF9E29C92B4F0CCE00418559 /* ExpressAPIProvider */,
-				EF9E29CC2B4F0CCE00418559 /* Logger */,
 				EF9E29D22B4F0CCE00418559 /* ExpressAPIMapper */,
 				EF9E29D42B4F0CCE00418559 /* ExpressAPIService */,
 			);
@@ -15468,15 +15463,6 @@
 				EF9E29CB2B4F0CCE00418559 /* ExpressAPIProvider.swift */,
 			);
 			path = ExpressAPIProvider;
-			sourceTree = "<group>";
-		};
-		EF9E29CC2B4F0CCE00418559 /* Logger */ = {
-			isa = PBXGroup;
-			children = (
-				EF9E29CD2B4F0CCE00418559 /* Logger.swift */,
-				EF9E29CE2B4F0CCE00418559 /* CommonLogger.swift */,
-			);
-			path = Logger;
 			sourceTree = "<group>";
 		};
 		EF9E29D22B4F0CCE00418559 /* ExpressAPIMapper */ = {
@@ -19852,7 +19838,6 @@
 				EF9E2A222B4F0CD100418559 /* ExpressTransactionData.swift in Sources */,
 				EF13996C2CBCFD1700AC9E2B /* OnrampQuote.swift in Sources */,
 				EF9CE9FD2D19B9800011BF4C /* ExpressFee.swift in Sources */,
-				EF9E2A132B4F0CD100418559 /* CommonLogger.swift in Sources */,
 				EF9E2A2F2B4F0CD100418559 /* AllowanceProvider.swift in Sources */,
 				EF49C0632CAD85A00062AF06 /* OnrampCountry.swift in Sources */,
 				EF9E2A112B4F0CD100418559 /* ExpressAPIProvider.swift in Sources */,
@@ -19874,7 +19859,6 @@
 				EF9E2A162B4F0CD100418559 /* ExpressDTO.swift in Sources */,
 				EF9E2A0D2B4F0CD100418559 /* ExpressManagerMapper.swift in Sources */,
 				EF25610E2CC69ECF00D3C16A /* OnrampStorage.swift in Sources */,
-				EF9E2A122B4F0CD100418559 /* Logger.swift in Sources */,
 				EFC990172CD3CC9C0098B7C8 /* ExpressBranch.swift in Sources */,
 				EF9E2A2C2B4F0CD100418559 /* TangemExpressFactory.swift in Sources */,
 				EF8BE6BD2CCA994F001FBA2B /* OnrampRedirectDataRequestItem.swift in Sources */,
