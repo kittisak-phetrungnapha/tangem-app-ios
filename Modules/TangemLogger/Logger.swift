@@ -15,26 +15,22 @@ public enum Logger {
 }
 
 public extension Logger {
-    static func debug<T>(_ category: Category, _ message: @autoclosure () -> T) {
-        let message = String(describing: message())
+    static func debug(_ category: Category, _ message: Any...) {
         log(message: message, category: category, level: .debug)
     }
 
     /// Save some information that will be useful to find the bug
-    static func info<T>(_ category: Category, _ message: @autoclosure () -> T) {
-        let message = String(describing: message())
+    static func info(_ category: Category, _ message: Any...) {
         log(message: message, category: category, level: .info)
     }
 
     /// Yellow background
-    static func warning<T>(_ category: Category, _ message: @autoclosure () -> T) {
-        let message = String(describing: message())
+    static func warning(_ category: Category, _ message: Any...) {
         log(message: message, category: category, level: .error)
     }
 
     /// Red background
-    static func error<T>(_ category: Category, _ message: @autoclosure () -> T) {
-        let message = String(describing: message())
+    static func error(_ category: Category, _ message: Any...) {
         log(message: message, category: category, level: .fault)
     }
 }
@@ -42,8 +38,9 @@ public extension Logger {
 // MARK: - Helpers
 
 private extension Logger {
-    static func log(message: String, category: OSLog.Category, level: OSLog.Level) {
+    static func log(message: Any..., category: OSLog.Category, level: OSLog.Level) {
         do {
+            let message = message.map(String.init(describing:)).joined(separator: ", ")
             OSLog[category].log(level: level, "\(message)")
             try OSLog.writer.write(message, category: category, level: level)
         } catch {

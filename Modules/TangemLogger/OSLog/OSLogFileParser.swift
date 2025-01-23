@@ -18,7 +18,7 @@ public enum OSLogFileParser {
         return rows
             .dropFirst() // Drop Header
             .compactMap { row in
-                let components = row.components(separatedBy: ",")
+                let components = row.components(separatedBy: OSLogConstants.separator)
                 guard components.count == 5 else {
                     assertionFailure("Wrong OSLogEntry format")
                     return nil

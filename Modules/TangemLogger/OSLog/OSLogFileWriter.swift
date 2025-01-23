@@ -52,8 +52,8 @@ class OSLogFileWriter {
         }
 
         let message = message
-            // The symbol `,` will be replaced to `;`
-            .replacingOccurrences(of: OSLogConstants.separator, with: ";")
+            // The symbol `,` will be replaced to `¸`
+            .replacingOccurrences(of: OSLogConstants.separator, with: OSLogConstants.cedilla)
             // Should checked above but replace it just in case
             .replacingOccurrences(of: "\n", with: "@new-line@")
 
