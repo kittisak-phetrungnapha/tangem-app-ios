@@ -190,8 +190,7 @@ private extension ExpressModulesFactoryMock {
             expressDestinationService: expressDestinationService,
             expressTransactionBuilder: expressTransactionBuilder,
             expressAPIProvider: expressAPIProvider,
-            signer: signer,
-            logger: logger
+            signer: signer
         )
 
         return interactor

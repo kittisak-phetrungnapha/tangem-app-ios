@@ -12,9 +12,9 @@ struct LogsView: View {
     @ObservedObject var viewModel: LogsViewModel
 
     var body: some View {
-            GroupedScrollView(alignment: .leading, spacing: 12) {
-                content
-            }
+        GroupedScrollView(alignment: .leading, spacing: 12) {
+            content
+        }
         .navigationTitle(Text("Logs"))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

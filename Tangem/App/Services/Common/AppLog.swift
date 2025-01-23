@@ -8,9 +8,12 @@
 
 import Foundation
 import TangemSdk
+import TangemLogger
 import protocol TangemExpress.Logger
 import protocol TangemVisa.VisaLogger
 import protocol TangemStaking.Logger
+
+typealias TLogger = TangemLogger.Logger
 
 class AppLog {
     static let shared = AppLog()
@@ -38,7 +41,7 @@ class AppLog {
     }
 
     func debug<T>(_ message: @autoclosure () -> T) {
-        OSLog.debug(message(), category: .custom("Common"))
+        TLogger.debug(.custom("Common"), message())
     }
 
     // TODO: Andrey Fedorov - Get rid of this method and pass file/line as arguments to `debug` (IOS-6440)
@@ -54,17 +57,17 @@ class AppLog {
         let sessionMessage = "New session.\nSession id: \(AppConstants.sessionId)"
         let launchNumberMessage = "Current launch number: \(currentLaunch)"
         let deviceInfoMessage = "\(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", "))"
-        debug("\(sessionMessage)\n\(launchNumberMessage)\n\(deviceInfoMessage)")
+        debug("\(sessionMessage);\(launchNumberMessage);\(deviceInfoMessage)")
     }
 }
 
 struct TangemExpressLogger: TangemExpress.Logger {
     func debug<T>(_ message: @autoclosure () -> T) {
-        OSLog.debug(message(), category: .express)
+        TLogger.debug(.express, message())
     }
 
     func error(_ error: any Error) {
-        OSLog.error(error.localizedDescription, category: .express)
+        TLogger.error(.express, error.localizedDescription)
     }
 }
 
@@ -72,10 +75,10 @@ extension AppLog: VisaLogger {}
 
 struct TangemStakingLogger: TangemStaking.Logger {
     public func debug<T>(_ message: @autoclosure () -> T) {
-        OSLog.debug(message(), category: .staking)
+        TLogger.debug(.staking, message())
     }
 
     public func error(_ error: any Error) {
-        OSLog.error(error.localizedDescription, category: .staking)
+        TLogger.error(.staking, error.localizedDescription)
     }
 }

@@ -8,6 +8,7 @@
 
 import SwiftUI
 import MessageUI
+import TangemLogger
 
 struct MailView: UIViewControllerRepresentable {
     let viewModel: MailViewModel
@@ -75,9 +76,9 @@ struct MailView: UIViewControllerRepresentable {
         vc.setMessageBody(messageBody, isHTML: false)
 
         do {
-            try MailZipFileManager.shared.attachZipData(at: OSLog.logFile, to: vc)
+            try MailZipFileManager.shared.attachZipData(at: OSLogFileParser.logFile, to: vc)
         } catch {
-            attachPlainTextData(at: OSLog.logFile, to: vc)
+            attachPlainCSVData(at: OSLogFileParser.logFile, to: vc)
         }
 
         /*
@@ -104,9 +105,9 @@ struct MailView: UIViewControllerRepresentable {
         context: UIViewControllerRepresentableContext<MailView>
     ) {}
 
-    private func attachPlainTextData(at url: URL, to viewController: MFMailComposeViewController) {
+    private func attachPlainCSVData(at url: URL, to viewController: MFMailComposeViewController) {
         if let data = try? Data(contentsOf: url) {
-            viewController.addAttachmentData(data, mimeType: "text/plain", fileName: url.lastPathComponent)
+            viewController.addAttachmentData(data, mimeType: "text/csv", fileName: url.lastPathComponent)
         }
     }
 }

@@ -10,14 +10,11 @@ import Foundation
 import OSLog
 
 class OSLogFileWriter {
-    private let fileName = "oslog.csv"
-    private let separator = ","
-    private let numberOfDaysUntilExpiration = 7
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.OSLogFileWriter.queue")
 
     private lazy var fileManager: FileManager = .default
 
-    private lazy var logFileURL: URL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
+    private lazy var logFileURL: URL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(OSLogConstants.fileName)
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -39,7 +36,7 @@ class OSLogFileWriter {
 
     var logFile: URL { logFileURL }
 
-    func write(_ message: String, category: OSLog.Category, level: OSLogEntryLog.Level, date: Date = .now) throws {
+    func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
         if message.contains("\n") {
             try message.components(separatedBy: "\n").forEach {
                 try write($0, category: category, level: level, date: date)
@@ -54,27 +51,28 @@ class OSLogFileWriter {
             return
         }
 
-        let encoded = message
+        let message = message
             // "This symbol `,` will be replaced to `;`"
-            .replacingOccurrences(of: separator, with: ";")
+            .replacingOccurrences(of: OSLogConstants.separator, with: ";")
             // Just in case
             .replacingOccurrences(of: "\n", with: "@new-line@")
 
-        let data = [
-            dateFormatter.string(from: date),
-            timeFormatter.string(from: date),
-            category.name,
-            level.name,
-            encoded,
-        ]
-        let message = "\n\(data.joined(separator: separator))"
-        try write(message: message)
+        let entry = OSLogEntry(
+            date: dateFormatter.string(from: date),
+            time: timeFormatter.string(from: date),
+            category: category.name,
+            level: level.name,
+            message: message
+        )
+
+        let row = "\n\(entry.encoded(separator: OSLogConstants.separator)))"
+        try write(row: row)
     }
 
-    private func write(message: String) throws {
+    private func write(row: String) throws {
         try loggerSerialQueue.sync {
-            guard let data = message.data(using: .utf8) else {
-                throw Errors.wrongData
+            guard let data = row.data(using: .utf8) else {
+                throw Errors.wrongRow
             }
 
             let handler = try FileHandle(forWritingTo: logFileURL)
@@ -91,15 +89,16 @@ class OSLogFileWriter {
 
         fileManager.createFile(atPath: logFileURL.relativePath, contents: nil)
 
-        let header = ["date", "time", "category", "level", "message"].joined(separator: separator)
-        try write(message: header)
+        // OSLogEntry property names
+        let header = OSLogEntry.encodedHeader(separator: OSLogConstants.separator)
+        try write(row: header)
     }
 
     private func removeLogFileIfNeeded() throws {
         let fileAttributes = try fileManager.attributesOfItem(atPath: logFileURL.relativePath)
 
         guard let creationDate = fileAttributes[.creationDate] as? Date,
-              let expirationDate = Calendar.current.date(byAdding: .day, value: numberOfDaysUntilExpiration, to: creationDate),
+              let expirationDate = Calendar.current.date(byAdding: .day, value: OSLogConstants.numberOfDaysUntilExpiration, to: creationDate),
               expirationDate < Date() else {
             return
         }
@@ -110,34 +109,24 @@ class OSLogFileWriter {
 
 extension OSLogFileWriter {
     enum Errors: LocalizedError {
-        case wrongData
+        case wrongRow
 
         var errorDescription: String? {
             switch self {
-            case .wrongData: "Wrong data"
+            case .wrongRow: "Wrong row"
             }
         }
     }
-
-    struct LogMessage: Hashable {
-        let date: String
-        let time: String
-        let category: String
-        let level: String
-        let message: String
-    }
 }
 
-private extension OSLogEntryLog.Level {
+private extension OSLog.Level {
     var name: String {
         switch self {
-        case .undefined: "Undefined"
         case .debug: "Debug"
         case .info: "Info"
-        case .notice: "Notice"
         case .error: "Error"
         case .fault: "Fault"
-        @unknown default: "@unknown default"
+        default: "Default"
         }
     }
 }

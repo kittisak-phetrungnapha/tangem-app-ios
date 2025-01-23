@@ -6,11 +6,11 @@
 //  Copyright © 2025 Tangem AG. All rights reserved.
 //
 
-import OSLog
 import SwiftUI
+import TangemLogger
 
 struct LogRowView: View {
-    let log: OSLogFileWriter.LogMessage
+    let log: OSLogEntry
 
     var body: some View {
         VStack(alignment: .leading) {
