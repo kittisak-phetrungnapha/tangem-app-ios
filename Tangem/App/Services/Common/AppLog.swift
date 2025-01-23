@@ -54,10 +54,10 @@ class AppLog {
     }
 
     func logAppLaunch(_ currentLaunch: Int) {
-        let sessionMessage = "New session.\nSession id: \(AppConstants.sessionId)"
+        let sessionMessage = "New session. Session id: \(AppConstants.sessionId)"
         let launchNumberMessage = "Current launch number: \(currentLaunch)"
         let deviceInfoMessage = "\(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", "))"
-        debug("\(sessionMessage);\(launchNumberMessage);\(deviceInfoMessage)")
+        debug("\(sessionMessage); \(launchNumberMessage); \(deviceInfoMessage)")
     }
 }
 

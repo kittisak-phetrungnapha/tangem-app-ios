@@ -14,7 +14,7 @@ public struct OSLogEntry: Hashable {
     public let message: String
 
     static func encodedHeader(separator: String) -> String {
-        ["date", "time", "category", "level", "message"]
+        ["Date", "Time", "Category", "Level", "Message"]
             .joined(separator: separator)
     }
 

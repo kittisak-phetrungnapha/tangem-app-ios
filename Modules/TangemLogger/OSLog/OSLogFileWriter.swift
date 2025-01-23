@@ -52,9 +52,9 @@ class OSLogFileWriter {
         }
 
         let message = message
-            // "This symbol `,` will be replaced to `;`"
+            // The symbol `,` will be replaced to `;`
             .replacingOccurrences(of: OSLogConstants.separator, with: ";")
-            // Just in case
+            // Should checked above but replace it just in case
             .replacingOccurrences(of: "\n", with: "@new-line@")
 
         let entry = OSLogEntry(
@@ -65,7 +65,7 @@ class OSLogFileWriter {
             message: message
         )
 
-        let row = "\n\(entry.encoded(separator: OSLogConstants.separator)))"
+        let row = "\n\(entry.encoded(separator: OSLogConstants.separator))"
         try write(row: row)
     }
 
