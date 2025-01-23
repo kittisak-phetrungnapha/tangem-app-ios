@@ -9,5 +9,6 @@
 enum OSLogConstants {
     static let fileName = "oslog.csv"
     static let separator = ","
+    static let cedilla = "¸"
     static let numberOfDaysUntilExpiration = 7
 }
