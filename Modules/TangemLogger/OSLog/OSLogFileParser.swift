@@ -13,11 +13,24 @@ public enum OSLogFileParser {
 
     public static func entries() throws -> [OSLogEntry] {
         let content = try String(contentsOf: logFile)
-        var rows: [String] = content.components(separatedBy: "\n")
-        // Drop Header
-        _ = rows.dropFirst()
+        let rows: [String] = content.components(separatedBy: "\n")
 
-        let cvs = rows.map { $0.components(separatedBy: ",") }
-        return []
+        return rows
+            .dropFirst() // Drop Header
+            .compactMap { row in
+                let components = row.components(separatedBy: ",")
+                guard components.count == 5 else {
+                    assertionFailure("Wrong OSLogEntry format")
+                    return nil
+                }
+
+                return OSLogEntry(
+                    date: components[0],
+                    time: components[1],
+                    category: components[2],
+                    level: components[3],
+                    message: components[4]
+                )
+            }
     }
 }

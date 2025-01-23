@@ -12,17 +12,15 @@ struct LogsView: View {
     @ObservedObject var viewModel: LogsViewModel
 
     var body: some View {
-        GroupedScrollView(alignment: .leading, spacing: 12) {
-            content
-        }
-        .navigationTitle(Text("Logs"))
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(action: { viewModel.setup() }) {
-                    Image(systemName: "arrow.clockwise")
-                }
+        VStack(spacing: 12) {
+            PickerView(contents: viewModel.categories, selection: $viewModel.selectedCategoryIndex)
+                .padding(.horizontal, 14)
+
+            GroupedScrollView(alignment: .leading, spacing: 12) {
+                content
             }
         }
+        .navigationTitle(Text("Logs"))
     }
 
     @ViewBuilder
@@ -32,7 +30,11 @@ struct LogsView: View {
             ProgressView()
                 .infinityFrame()
         case .success(let logs):
-            ForEach(logs, id: \.self) { LogRowView(log: $0) }
+            ForEach(logs, id: \.self) {
+                LogRowView(log: $0)
+
+                Divider()
+            }
         case .failure(let failure):
             Text(failure.localizedDescription)
                 .style(Fonts.Regular.subheadline, color: Colors.Text.primary1)

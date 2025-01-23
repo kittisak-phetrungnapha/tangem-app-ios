@@ -13,22 +13,28 @@ struct LogRowView: View {
     let log: OSLogEntry
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(log.message)
                 .style(Fonts.Regular.footnote, color: Colors.Text.primary1)
 
-            HStack {
-                Text(log.level)
+            HStack(spacing: 4) {
+                Group {
+                    Text(log.category)
 
-                Text(AppConstants.dotSign)
+                    Text(AppConstants.dotSign)
 
-                Text(log.date)
+                    Text(log.level)
+                }.style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
 
-                Text(AppConstants.dotSign)
+                Spacer()
 
-                Text(log.category)
+                Group {
+                    Text(log.date)
+
+                    Text(log.time)
+                }
+                .style(Fonts.Regular.caption2, color: Colors.Text.tertiary)
             }
-            .style(Fonts.Bold.caption1, color: Colors.Text.tertiary)
         }
     }
 }
