@@ -2560,7 +2560,6 @@
 		EF3CC86E2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3CC86D2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift */; };
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
 		EF407E352C04AF6F00366733 /* TangemStakingFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E342C04AF6F00366733 /* TangemStakingFactory.swift */; };
-		EF407E382C04B09A00366733 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E372C04B09A00366733 /* Logger.swift */; };
 		EF407E5D2C04D64B00366733 /* StakingAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5C2C04D64B00366733 /* StakingAPIProvider.swift */; };
 		EF407E5F2C04D65B00366733 /* CommonStakingAPIProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E5E2C04D65B00366733 /* CommonStakingAPIProvider.swift */; };
 		EF407E622C04D67400366733 /* StakeKitMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF407E612C04D67400366733 /* StakeKitMapper.swift */; };
@@ -5755,7 +5754,6 @@
 		EF3CC86D2CE4BF4C006A9FBD /* OnrampAmountCompactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnrampAmountCompactViewModel.swift; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
 		EF407E342C04AF6F00366733 /* TangemStakingFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemStakingFactory.swift; sourceTree = "<group>"; };
-		EF407E372C04B09A00366733 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		EF407E5C2C04D64B00366733 /* StakingAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAPIProvider.swift; sourceTree = "<group>"; };
 		EF407E5E2C04D65B00366733 /* CommonStakingAPIProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonStakingAPIProvider.swift; sourceTree = "<group>"; };
 		EF407E612C04D67400366733 /* StakeKitMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakeKitMapper.swift; sourceTree = "<group>"; };
@@ -14333,14 +14331,6 @@
 			path = Factory;
 			sourceTree = "<group>";
 		};
-		EF407E362C04B08F00366733 /* Interfaces */ = {
-			isa = PBXGroup;
-			children = (
-				EF407E372C04B09A00366733 /* Logger.swift */,
-			);
-			path = Interfaces;
-			sourceTree = "<group>";
-		};
 		EF407E5B2C04D64300366733 /* StakingAPIProvider */ = {
 			isa = PBXGroup;
 			children = (
@@ -16212,7 +16202,6 @@
 			children = (
 				EF536B812CAFD2C500FDC3E7 /* StakingConstants.swift */,
 				EF407E332C04AF5C00366733 /* Factory */,
-				EF407E362C04B08F00366733 /* Interfaces */,
 				EFBC5C6F2C00A74100B662E0 /* Models */,
 				EFBC5C722C00A74100B662E0 /* Services */,
 				EFEE238A2BFF62D50099917E /* TangemStaking.h */,
@@ -19898,7 +19887,6 @@
 				0A3BF9692C6CDAD900163492 /* AdditionalAddresses.swift in Sources */,
 				EFBC5C752C00A74100B662E0 /* StakingAPIService.swift in Sources */,
 				EFBC5C902C00B8B800B662E0 /* StakeKitDTO+Yield.swift in Sources */,
-				EF407E382C04B09A00366733 /* Logger.swift in Sources */,
 				EF8DBCEA2C061B0E009072CF /* CommonStakingManager.swift in Sources */,
 				EF7A25F42C9092960089A4A4 /* PendingActionRequest.swift in Sources */,
 				EF407E682C04D7E700366733 /* RewardClaimingType.swift in Sources */,

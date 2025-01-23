@@ -35,7 +35,6 @@ class StakingDependenciesFactory {
             integrationId: integrationId,
             wallet: wallet,
             provider: makeStakingAPIProvider(),
-            logger: TangemStakingLogger(),
             analyticsLogger: CommonStakingAnalyticsLogger()
         )
     }
