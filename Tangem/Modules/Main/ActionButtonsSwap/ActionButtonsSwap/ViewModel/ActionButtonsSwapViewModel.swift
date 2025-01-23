@@ -73,8 +73,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
         sourceSwapTokenSelectorViewModel = sourceSwapTokeSelectorViewModel
 
         let expressAPIProviderFactory = ExpressAPIProviderFactory().makeExpressAPIProvider(
-            userId: userWalletModel.userWalletId.stringValue,
-            logger: TangemExpressLogger()
+            userId: userWalletModel.userWalletId.stringValue
         )
 
         expressRepository = CommonExpressRepository(

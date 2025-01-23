@@ -155,7 +155,7 @@ private extension CommonExpressAvailabilityProvider {
             return
         }
 
-        let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: TangemExpressLogger())
+        let provider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId)
         apiProvider = provider
     }
 }

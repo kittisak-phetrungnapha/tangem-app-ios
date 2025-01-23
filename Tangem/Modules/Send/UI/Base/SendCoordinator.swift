@@ -154,7 +154,6 @@ extension SendCoordinator: SendRoutable {
                 balanceFormatter: .init(),
                 balanceConverter: .init()
             ),
-            logger: TangemExpressLogger(),
             approveViewModelInput: approveViewModelInput,
             coordinator: self
         )

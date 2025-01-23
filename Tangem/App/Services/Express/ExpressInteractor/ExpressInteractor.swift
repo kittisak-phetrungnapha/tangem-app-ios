@@ -637,7 +637,7 @@ private extension ExpressInteractor {
 
 private extension ExpressInteractor {
     func log<T: CustomStringConvertible>(_ args: T) {
-        TLogger.info(.express, "\(self) \(args)")
+        Logger.info(.express, self, args)
     }
 }
 

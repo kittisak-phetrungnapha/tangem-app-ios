@@ -403,7 +403,7 @@ struct SendDependenciesBuilder {
         repository: OnrampRepository,
         dataRepository: OnrampDataRepository
     ) {
-        let apiProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId, logger: TangemExpressLogger())
+        let apiProvider = ExpressAPIProviderFactory().makeExpressAPIProvider(userId: userWalletId)
 
         let factory = TangemExpressFactory()
         let repository = factory.makeOnrampRepository(storage: CommonOnrampStorage())
@@ -412,7 +412,6 @@ struct SendDependenciesBuilder {
             expressAPIProvider: apiProvider,
             onrampRepository: repository,
             dataRepository: dataRepository,
-            logger: TangemExpressLogger(),
             analyticsLogger: CommonExpressAnalyticsLogger(tokenItem: walletModel.tokenItem)
         )
 

@@ -30,7 +30,7 @@ struct LogsView: View {
             ProgressView()
                 .infinityFrame()
         case .success(let logs):
-            ForEach(logs, id: \.self) {
+            ForEach(logs, id: \.hashValue) {
                 LogRowView(log: $0)
 
                 Divider()
