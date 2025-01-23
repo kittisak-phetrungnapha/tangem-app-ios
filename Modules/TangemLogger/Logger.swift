@@ -19,7 +19,7 @@ public extension Logger {
         log(message: message, category: category, level: .debug)
     }
 
-    /// Some info
+    /// Save some information that will be useful to find the bug
     static func info(_ category: Category, _ message: Any...) {
         log(message: message, category: category, level: .info)
     }
