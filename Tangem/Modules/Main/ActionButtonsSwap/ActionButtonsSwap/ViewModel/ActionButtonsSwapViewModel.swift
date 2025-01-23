@@ -74,7 +74,7 @@ final class ActionButtonsSwapViewModel: ObservableObject {
 
         let expressAPIProviderFactory = ExpressAPIProviderFactory().makeExpressAPIProvider(
             userId: userWalletModel.userWalletId.stringValue,
-            logger: AppLog.shared
+            logger: TangemExpressLogger()
         )
 
         expressRepository = CommonExpressRepository(

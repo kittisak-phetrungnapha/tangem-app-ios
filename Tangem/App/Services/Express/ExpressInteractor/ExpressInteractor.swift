@@ -638,8 +638,8 @@ private extension ExpressInteractor {
 // MARK: - Log
 
 private extension ExpressInteractor {
-    func log(_ args: Any) {
-        logger.debug("[Express] \(self) \(args)")
+    func log<T: CustomStringConvertible>(_ args: T) {
+        OSLog[.express].info("\(self) \(args)")
     }
 }
 

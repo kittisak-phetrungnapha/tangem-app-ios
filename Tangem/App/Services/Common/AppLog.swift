@@ -20,7 +20,7 @@ class AppLog {
     private init() {}
 
     var sdkLogConfig: Log.Config {
-        var loggers: [TangemSdkLogger] = [ /* fileLogger */ ]
+        var loggers: [TangemSdkLogger] = [fileLogger]
 
         if AppEnvironment.current.isDebug {
             loggers.append(ConsoleLogger())
@@ -38,7 +38,7 @@ class AppLog {
     }
 
     func debug<T>(_ message: @autoclosure () -> T) {
-        OSLog.log(message: message())
+        OSLog.debug(message(), category: .custom("Common"))
     }
 
     // TODO: Andrey Fedorov - Get rid of this method and pass file/line as arguments to `debug` (IOS-6440)
@@ -51,16 +51,31 @@ class AppLog {
     }
 
     func logAppLaunch(_ currentLaunch: Int) {
-        let dashSeparator = String(repeating: "-", count: 25)
-        let sessionMessage = "\(dashSeparator) New session. Session id: \(AppConstants.sessionId) \(dashSeparator)"
-        let launchNumberMessage = "\(dashSeparator) Current launch number: \(currentLaunch) \(dashSeparator)"
-        let deviceInfoMessage = "\(dashSeparator) \(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", ")) \(dashSeparator)"
-        debug("\n\(sessionMessage)\n\(launchNumberMessage)\n\(deviceInfoMessage)\n\n")
+        let sessionMessage = "New session.\nSession id: \(AppConstants.sessionId)"
+        let launchNumberMessage = "Current launch number: \(currentLaunch)"
+        let deviceInfoMessage = "\(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", "))"
+        debug("\(sessionMessage)\n\(launchNumberMessage)\n\(deviceInfoMessage)")
     }
 }
 
-extension AppLog: TangemExpress.Logger {}
+struct TangemExpressLogger: TangemExpress.Logger {
+    func debug<T>(_ message: @autoclosure () -> T) {
+        OSLog.debug(message(), category: .express)
+    }
+
+    func error(_ error: any Error) {
+        OSLog.error(error.localizedDescription, category: .express)
+    }
+}
 
 extension AppLog: VisaLogger {}
 
-extension AppLog: TangemStaking.Logger {}
+struct TangemStakingLogger: TangemStaking.Logger {
+    public func debug<T>(_ message: @autoclosure () -> T) {
+        OSLog.debug(message(), category: .staking)
+    }
+
+    public func error(_ error: any Error) {
+        OSLog.error(error.localizedDescription, category: .staking)
+    }
+}

@@ -40,7 +40,7 @@ struct ExpressAPIProviderFactory {
             configuration: .defaultConfiguration,
             expressAPIType: expressAPIType,
             exchangeDataDecoder: exchangeDataDecoder,
-            logger: AppLog.shared
+            logger: TangemExpressLogger()
         )
     }
 }

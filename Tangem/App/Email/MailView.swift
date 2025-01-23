@@ -74,6 +74,12 @@ struct MailView: UIViewControllerRepresentable {
 
         vc.setMessageBody(messageBody, isHTML: false)
 
+        do {
+            try MailZipFileManager.shared.attachZipData(at: OSLog.logFile, to: vc)
+        } catch {
+            attachPlainTextData(at: OSLog.logFile, to: vc)
+        }
+
         /*
          let logFiles = viewModel.logsComposer.getLogFiles()
 

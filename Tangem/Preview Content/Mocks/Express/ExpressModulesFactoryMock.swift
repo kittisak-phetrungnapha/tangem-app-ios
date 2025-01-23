@@ -144,7 +144,7 @@ private extension ExpressModulesFactoryMock {
     var walletModelsManager: WalletModelsManager { userWalletModel.walletModelsManager }
     var userWalletId: String { userWalletModel.userWalletId.stringValue }
     var signer: TangemSigner { TangemSigner(filter: .cardId(""), sdk: TangemSdkDefaultFactory().makeTangemSdk(), twinKey: nil) }
-    var logger: Logger { AppLog.shared }
+    var logger: Logger { TangemExpressLogger() }
     var userTokensManager: UserTokensManager { userWalletModel.userTokensManager }
 
     var expressTokensListAdapter: ExpressTokensListAdapter {
