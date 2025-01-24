@@ -35,10 +35,8 @@ class LogsViewModel: ObservableObject {
 
         refreshCancellable = Publishers
             .CombineLatest(entries, $selectedCategoryIndex)
-            .withWeakCaptureOf(self)
-            .receive(on: DispatchQueue.main)
-            .handleEvents(receiveOutput: { $0.0.logs = .loading })
             .receive(on: DispatchQueue.global())
+            .withWeakCaptureOf(self)
             .map { viewModel, args in
                 let (entries, categoryIndex) = args
 
