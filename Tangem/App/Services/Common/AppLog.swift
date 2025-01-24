@@ -45,7 +45,7 @@ class AppLog {
     }
 
     func debug<T>(_ message: @autoclosure () -> T) {
-        TangemLogger.Logger.debug(.custom("Common"), message())
+        Logger.debug(.custom("App"), message())
     }
 
     // TODO: Andrey Fedorov - Get rid of this method and pass file/line as arguments to `debug` (IOS-6440)
