@@ -8,6 +8,7 @@
 import Foundation
 import Moya
 import TangemLogger
+import Alamofire
 
 public final class TangemNetworkLoggerPlugin {
     public let logOptions: LogOptions
@@ -28,6 +29,8 @@ extension TangemNetworkLoggerPlugin: PluginType {
         switch result {
         case .success(let response):
             Logger.info(.network, logSuccessNetworkResponse(response, target: target))
+        case .failure(.underlying(AFError.explicitlyCancelled, let response)):
+            Logger.warning(.network, logNetworkError(.underlying(AFError.explicitlyCancelled, response), target: target))
         case .failure(let error):
             Logger.error(.network, logNetworkError(error, target: target))
         }
