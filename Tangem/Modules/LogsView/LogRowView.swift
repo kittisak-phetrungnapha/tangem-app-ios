@@ -51,7 +51,7 @@ struct LogRowView: View {
     }
 
     var background: Color {
-        switch Logger.Level(rawValue: data.log.level) {
+        switch Logger.Level(rawValue: data.log.level.lowercased()) {
         case .error: Color.red.opacity(0.2)
         case .warning: Color.yellow.opacity(0.2)
         default: Color.clear
