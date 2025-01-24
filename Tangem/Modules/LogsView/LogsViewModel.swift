@@ -13,13 +13,13 @@ import TangemLogger
 
 class LogsViewModel: ObservableObject {
     var categories: [String] {
-        ["All"] + (entries.value.value.map { $0.map(\.category) } ?? []).toSet().sorted()
+        ["All"] + (entries.value.value.map { $0.map(\.log.category) } ?? []).toSet().sorted()
     }
 
     @Published var selectedCategoryIndex: Int = .zero
-    @Published var logs: LoadingResult<[OSLogEntry], Error> = .loading
+    @Published var logs: LoadingResult<[LogRowViewData], Error> = .loading
 
-    private let entries: CurrentValueSubject<LoadingResult<[OSLogEntry], Error>, Never> = .init(.loading)
+    private let entries: CurrentValueSubject<LoadingResult<[LogRowViewData], Error>, Never> = .init(.loading)
     private var refreshCancellable: AnyCancellable?
 
     init() {
@@ -27,7 +27,11 @@ class LogsViewModel: ObservableObject {
     }
 
     func setup() {
-        entries.send(.result(.init { try OSLogFileParser.entries() }))
+        entries.send(.result(.init {
+            try OSLogFileParser.entries()
+                .reversed()
+                .map { LogRowViewData(log: $0) }
+        }))
 
         refreshCancellable = Publishers
             .CombineLatest(entries, $selectedCategoryIndex)
@@ -40,7 +44,8 @@ class LogsViewModel: ObservableObject {
 
                 return entries.mapValue { entries in
                     if categoryIndex > 0 {
-                        return entries.filter { $0.category == viewModel.categories[categoryIndex] }
+                        return entries
+                            .filter { $0.log.category == viewModel.categories[categoryIndex] }
                     }
 
                     return entries

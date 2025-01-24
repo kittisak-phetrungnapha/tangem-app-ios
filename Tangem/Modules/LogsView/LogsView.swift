@@ -16,11 +16,12 @@ struct LogsView: View {
             PickerView(contents: viewModel.categories, selection: $viewModel.selectedCategoryIndex)
                 .padding(.horizontal, 14)
 
-            GroupedScrollView(alignment: .leading, spacing: 12) {
+            GroupedScrollView(alignment: .leading, spacing: .zero) {
                 content
             }
         }
         .navigationTitle(Text("Logs"))
+        .background(Colors.Background.tertiary.ignoresSafeArea())
     }
 
     @ViewBuilder
@@ -30,8 +31,8 @@ struct LogsView: View {
             ProgressView()
                 .infinityFrame()
         case .success(let logs):
-            ForEach(logs, id: \.hashValue) {
-                LogRowView(log: $0)
+            ForEach(logs) {
+                LogRowView(data: $0)
 
                 Divider()
             }
