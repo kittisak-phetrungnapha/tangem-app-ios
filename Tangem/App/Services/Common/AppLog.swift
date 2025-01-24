@@ -45,7 +45,7 @@ class AppLog {
     }
 
     func debug<T>(_ message: @autoclosure () -> T) {
-        Logger.debug(.custom("App"), message())
+        Logger.debug(.app, message())
     }
 
     // TODO: Andrey Fedorov - Get rid of this method and pass file/line as arguments to `debug` (IOS-6440)
@@ -53,17 +53,16 @@ class AppLog {
         Log.debug("\(file):\(line): \(message())")
     }
 
-    func error(_ error: Error) {
-        self.error(error: error, params: [:])
-    }
-
     func logAppLaunch(_ currentLaunch: Int) {
-        let dashSeparator = String(repeating: "-", count: 25)
-        let sessionMessage = "\(dashSeparator) New session. Session id: \(AppConstants.sessionId) \(dashSeparator)"
-        let launchNumberMessage = "\(dashSeparator) Current launch number: \(currentLaunch) \(dashSeparator)"
-        let deviceInfoMessage = "\(dashSeparator) \(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", ")) \(dashSeparator)"
-        debug("\n\(sessionMessage)\n\(launchNumberMessage)\n\(deviceInfoMessage)\n\n")
+        let sessionMessage = "New session. Session id: \(AppConstants.sessionId)"
+        let launchNumberMessage = "Current launch number: \(currentLaunch)"
+        let deviceInfoMessage = "\(DeviceInfoProvider.Subject.allCases.map { $0.description }.joined(separator: ", "))"
+        Logger.info(.app, sessionMessage, launchNumberMessage, deviceInfoMessage)
     }
 }
 
-extension AppLog: VisaLogger {}
+extension AppLog: VisaLogger {
+    func error(_ error: any Error) {
+        Analytics.error(error)
+    }
+}

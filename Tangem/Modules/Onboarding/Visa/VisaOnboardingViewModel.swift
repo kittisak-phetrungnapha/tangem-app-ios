@@ -265,7 +265,7 @@ extension VisaOnboardingViewModel: UserWalletStorageAgreementRoutable {
                     return
                 }
 
-                AppLog.shared.error(error)
+                Analytics.error(error)
 
                 biometryAccessGranted = false
 //                self?.didAskToSaveUserWallets(agreed: false)

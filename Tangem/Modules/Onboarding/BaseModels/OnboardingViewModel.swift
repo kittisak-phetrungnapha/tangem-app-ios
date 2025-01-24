@@ -274,7 +274,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             do {
                 try handleUserWalletOnFinish()
             } catch {
-                AppLog.shared.error(error)
+                Analytics.error(error)
                 return
             }
 
@@ -441,7 +441,7 @@ extension OnboardingViewModel: UserWalletStorageAgreementRoutable {
                     return
                 }
 
-                AppLog.shared.error(error)
+                Analytics.error(error)
 
                 biometryAccessGranted = false
                 self?.didAskToSaveUserWallets(agreed: false)

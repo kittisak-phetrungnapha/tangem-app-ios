@@ -422,7 +422,7 @@ extension SingleTokenBaseViewModel {
                 .map(\.price.doubleValue)
             miniChartData = .loaded(chartPoints)
         } catch {
-            AppLog.shared.error(error)
+            Analytics.error(error)
             miniChartData = .failedToLoad(error: error)
         }
     }

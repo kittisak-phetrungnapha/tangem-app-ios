@@ -62,7 +62,7 @@ private extension CommonTokenBalancesStorage {
             log("storage load successfully")
         } catch {
             log("storage load error \(error.localizedDescription)")
-            AppLog.shared.error(error)
+            Analytics.error(error)
         }
     }
 
@@ -71,7 +71,7 @@ private extension CommonTokenBalancesStorage {
             try storage.store(value: balances, for: .cachedBalances)
         } catch {
             log("storage save error \(error.localizedDescription)")
-            AppLog.shared.error(error)
+            Analytics.error(error)
         }
     }
 

@@ -11,10 +11,11 @@ public enum OSLogCategory: Hashable {
     case express
     case visa
     case staking
-    case token
+    case app
     case tangemSDK
     case blockchainSDK
     case logFileWriter
+    case analytics
     case custom(String)
 
     var name: String {
@@ -23,7 +24,8 @@ public enum OSLogCategory: Hashable {
         case .express: "Express"
         case .visa: "Visa"
         case .staking: "Staking"
-        case .token: "Token"
+        case .app: "App"
+        case .analytics: "Analytics"
         case .tangemSDK: "TangemSDK"
         case .blockchainSDK: "BlockchainSDK"
         case .logFileWriter: "LogFileWriter"
