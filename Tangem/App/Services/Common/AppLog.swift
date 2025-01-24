@@ -13,7 +13,7 @@ import protocol TangemVisa.VisaLogger
 
 struct TangemSdkOSLogger: TangemSdkLogger {
     func log(_ message: String, level: Log.Level) {
-        let prefix = level.prefix.isEmpty ? level.emoji : "\(level.emoji):\(level.prefix)"
+        let prefix = level.prefix.isEmpty ? level.emoji : "\(level.emoji) :\(level.prefix)"
 
         Logger.debug(.tangemSDK, "\(prefix) \(message)")
     }
@@ -45,7 +45,7 @@ class AppLog {
     }
 
     func debug<T>(_ message: @autoclosure () -> T) {
-        TangemLogger.Logger.debug(.custom("Common"), message())
+        TangemLogger.Logger.debug(.custom("App"), message())
     }
 
     // TODO: Andrey Fedorov - Get rid of this method and pass file/line as arguments to `debug` (IOS-6440)

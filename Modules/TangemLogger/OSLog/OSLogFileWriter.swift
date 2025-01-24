@@ -37,6 +37,8 @@ class OSLogFileWriter {
     var logFile: URL { logFileURL }
 
     func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
+        var message = message.trimmingCharacters(in: .whitespacesAndNewlines)
+
         if message.contains("\n") {
             try message.components(separatedBy: "\n").forEach {
                 try write($0, category: category, level: level, date: date)
@@ -47,11 +49,11 @@ class OSLogFileWriter {
         assert(!message.contains("\n"), "Should be separated by a few messages")
 
         if message.isEmpty {
-            assertionFailure("Message can not be empty")
+//            assertionFailure("Message can not be empty")
             return
         }
 
-        let message = message
+        message = message
             // The symbol `,` will be replaced to `¸`
             .replacingOccurrences(of: OSLogConstants.separator, with: OSLogConstants.cedilla)
             // Should checked above but replace it just in case
@@ -119,7 +121,7 @@ extension OSLogFileWriter {
     }
 }
 
-private extension OSLog.Level {
+public extension OSLog.Level {
     var name: String {
         switch self {
         case .debug: "Debug"
