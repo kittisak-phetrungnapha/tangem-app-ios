@@ -16,20 +16,18 @@ extension OSLog {
 }
 
 extension OSLog {
-    func log<T>(level: Level, message: @autoclosure () -> T) {
-        let msg = String(describing: message())
-
+    func log(level: Level, message: String) {
         switch level {
-        case .debug: debug("\(msg, privacy: .auto)")
-        case .info: info("\(msg, privacy: .auto)")
-        case .warning: error("\(msg, privacy: .auto)")
-        case .error: fault("\(msg, privacy: .auto))")
+        case .debug: debug("\(message, privacy: .auto)")
+        case .info: info("\(message, privacy: .auto)")
+        case .warning: error("\(message, privacy: .auto)")
+        case .error: fault("\(message, privacy: .auto))")
         }
     }
 }
 
 extension OSLog {
-    private static let queue = DispatchQueue(label: subsystem, attributes: .concurrent)
+    private static let queue = DispatchQueue(label: subsystem)
     private static let subsystem = "com.tangem.os.logger"
     private static var loggers: [Category: OSLog] = [:]
 

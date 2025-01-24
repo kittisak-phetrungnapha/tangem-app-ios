@@ -18,41 +18,53 @@ public enum Logger {
 }
 
 public extension Logger {
-    static func debug(_ category: Category, _ message: Any...) {
-        log(category: category, level: .debug, message: message)
+    static func debug(
+        _ category: Category,
+        file: StaticString = #fileID,
+        line: UInt = #line,
+        function: StaticString = #function,
+        _ message: Any...
+    ) {
+        log(.debug, category: category, message: "\(file):\(line):", message.describing())
     }
 
     /// Save some information that will be useful to find the bug
     static func info(_ category: Category, _ message: Any...) {
-        log(category: category, level: .info, message: message)
+        log(.info, category: category, message: message)
     }
 
     /// Yellow background
     static func warning(_ category: Category, _ message: Any...) {
-        log(category: category, level: .warning, message: message)
+        log(.warning, category: category, message: message)
     }
 
     /// Red background
     static func error(_ category: Category, _ message: Any...) {
-        log(category: category, level: .error, message: message)
+        log(.error, category: category, message: message)
     }
 }
 
 // MARK: - Helpers
 
 private extension Logger {
-    static func log(category: OSLog.Category, level: OSLog.Level, message: Any...) {
-        let message = message.map(String.init(describing:)).joined(separator: ", ")
-        OSLog.logger(for: category).log(level: level, message: "\(message)")
+    static func log(_ level: OSLog.Level, category: OSLog.Category, message: Any...) {
+        let msg = message.describing()
+        OSLog.logger(for: category).log(level: level, message: "\(msg)")
 
         guard configuration.shouldToStore(category: category, level: level) else {
             return
         }
 
         do {
-            try OSLogFileWriter.shared.write(message, category: category, level: level)
+            try OSLogFileWriter.shared.write(msg, category: category, level: level)
         } catch {
             OSLog.logger(for: .logFileWriter).fault("\(error.localizedDescription)")
         }
+    }
+}
+
+private extension [Any] {
+    func describing(separator: String = " ") -> String {
+        map(String.init(describing:)).joined(separator: separator)
     }
 }
