@@ -10,11 +10,15 @@ import Foundation
 import OSLog
 
 class OSLogFileWriter {
+    static let shared = OSLogFileWriter()
+
     private let loggerSerialQueue = DispatchQueue(label: "com.tangem.OSLogFileWriter.queue")
 
     private lazy var fileManager: FileManager = .default
 
-    private lazy var logFileURL: URL = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(OSLogConstants.fileName)
+    private lazy var logFileURL: URL = fileManager
+        .urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        .appendingPathComponent(OSLogConstants.fileName)
 
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -29,10 +33,15 @@ class OSLogFileWriter {
     }()
 
     private init() {
+        try? fileManager.removeItem(at: logFileURL)
         try? removeLogFileIfNeeded()
         try? createLogFileIfNeeded()
     }
+}
 
+// MARK: - Internal
+
+extension OSLogFileWriter {
     var logFile: URL { logFileURL }
 
     func write(_ message: String, category: OSLog.Category, level: OSLog.Level, date: Date = .now) throws {
@@ -45,8 +54,10 @@ class OSLogFileWriter {
             return
         }
 
+        assert(!message.contains("\n"), "Should be separated by a few messages")
+
         if message.isEmpty {
-            // Message can not be empty
+            //            assertionFailure("Message can not be empty")
             return
         }
 
@@ -67,8 +78,12 @@ class OSLogFileWriter {
         let row = "\n\(entry.encoded(separator: OSLogConstants.separator))"
         try write(row: row)
     }
+}
 
-    private func write(row: String) throws {
+// MARK: - Private
+
+private extension OSLogFileWriter {
+    func write(row: String) throws {
         try loggerSerialQueue.sync {
             guard let data = row.data(using: .utf8) else {
                 throw Errors.wrongRow
@@ -81,7 +96,7 @@ class OSLogFileWriter {
         }
     }
 
-    private func createLogFileIfNeeded() throws {
+    func createLogFileIfNeeded() throws {
         guard !fileManager.fileExists(atPath: logFileURL.relativePath) else {
             return
         }
@@ -93,7 +108,7 @@ class OSLogFileWriter {
         try write(row: header)
     }
 
-    private func removeLogFileIfNeeded() throws {
+    func removeLogFileIfNeeded() throws {
         let fileAttributes = try fileManager.attributesOfItem(atPath: logFileURL.relativePath)
 
         guard let creationDate = fileAttributes[.creationDate] as? Date,
@@ -106,6 +121,8 @@ class OSLogFileWriter {
     }
 }
 
+// MARK: - Errors
+
 extension OSLogFileWriter {
     enum Errors: LocalizedError {
         case wrongRow
@@ -114,18 +131,6 @@ extension OSLogFileWriter {
             switch self {
             case .wrongRow: "Wrong row"
             }
-        }
-    }
-}
-
-public extension OSLog.Level {
-    var name: String {
-        switch self {
-        case .debug: "Debug"
-        case .info: "Info"
-        case .error: "Error"
-        case .fault: "Fault"
-        default: "Default"
         }
     }
 }
