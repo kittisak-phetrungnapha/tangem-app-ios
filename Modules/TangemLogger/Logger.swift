@@ -7,9 +7,11 @@
 //
 
 import Foundation
+import OSLog
 
 public enum Logger {
     public typealias Category = OSLogCategory
+    public typealias Level = OSLogType
 
     static var logFile: URL { OSLog.writer.logFile }
 }

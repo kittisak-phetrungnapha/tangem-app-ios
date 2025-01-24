@@ -22,17 +22,20 @@ extension OSLog {
 }
 
 private extension OSLog {
+    static let queue = DispatchQueue(label: subsystem, attributes: .concurrent)
     static let subsystem = "com.tangem.os.logger"
     static var loggers: [Category: OSLog] = [:]
 
     static func logger(for category: Category) -> OSLog {
-        if let logger = loggers[category] {
+        queue.sync {
+            if let logger = loggers[category] {
+                return logger
+            }
+
+            let logger = OSLog(subsystem: subsystem, category: category.name.capitalized)
+            loggers[category] = logger
             return logger
         }
-
-        let logger = OSLog(subsystem: subsystem, category: category.name.capitalized)
-        loggers[category] = logger
-        return logger
     }
 }
 
