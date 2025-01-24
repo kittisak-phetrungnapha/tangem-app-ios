@@ -22,17 +22,6 @@ struct LogRowViewData: Identifiable {
 struct LogRowView: View {
     let data: LogRowViewData
 
-    var background: Color {
-        switch data.log.level {
-        case Logger.Level.fault.name:
-            Color.red.opacity(0.2)
-        case Logger.Level.error.name:
-            Color.yellow.opacity(0.2)
-        default:
-            Color.clear
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(data.log.message)
@@ -59,5 +48,13 @@ struct LogRowView: View {
         }
         .padding(.vertical, 12)
         .background(background)
+    }
+
+    var background: Color {
+        switch Logger.Level(rawValue: data.log.level) {
+        case .error: Color.red.opacity(0.2)
+        case .warning: Color.yellow.opacity(0.2)
+        default: Color.clear
+        }
     }
 }

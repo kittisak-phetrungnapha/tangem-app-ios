@@ -12,19 +12,26 @@ typealias OSLog = os.Logger
 
 extension OSLog {
     typealias Category = OSLogCategory
-    typealias Level = OSLogType
+    typealias Level = OSLogLevel
 }
 
 extension OSLog {
-    static subscript(_ category: Category) -> OSLog {
-        .logger(for: category)
+    func log<T>(level: Level, message: @autoclosure () -> T) {
+        let msg = String(describing: message())
+
+        switch level {
+        case .debug: debug("\(msg, privacy: .auto)")
+        case .info: info("\(msg, privacy: .auto)")
+        case .warning: error("\(msg, privacy: .auto)")
+        case .error: fault("\(msg, privacy: .auto))")
+        }
     }
 }
 
-private extension OSLog {
-    static let queue = DispatchQueue(label: subsystem, attributes: .concurrent)
-    static let subsystem = "com.tangem.os.logger"
-    static var loggers: [Category: OSLog] = [:]
+extension OSLog {
+    private static let queue = DispatchQueue(label: subsystem, attributes: .concurrent)
+    private static let subsystem = "com.tangem.os.logger"
+    private static var loggers: [Category: OSLog] = [:]
 
     static func logger(for category: Category) -> OSLog {
         queue.sync {
@@ -37,10 +44,4 @@ private extension OSLog {
             return logger
         }
     }
-}
-
-// MARK: - Writer
-
-extension OSLog {
-    static let writer = OSLogFileWriter()
 }

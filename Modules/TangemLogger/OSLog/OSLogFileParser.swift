@@ -9,9 +9,9 @@
 import Foundation
 
 public enum OSLogFileParser {
-    public static let logFile: URL = OSLog.writer.logFile
+    public static let logFile: URL = OSLogFileWriter.shared.logFile
 
-    public static func entries() throws -> [OSLogEntry] {
+    public static func entries(logFile: URL = OSLogFileParser.logFile) throws -> [OSLogEntry] {
         let content = try String(contentsOf: logFile)
         let rows: [String] = content.components(separatedBy: "\n")
 
